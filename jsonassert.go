@@ -37,12 +37,13 @@ func (a *asserter) AssertString(payload, format string, args ...interface{}) {
 	var jsonMap map[string]*json.RawMessage
 	err := json.Unmarshal([]byte(payload), &jsonMap)
 	if err != nil {
-		a.p.Errorf("jsonassert: cannot parse *payload* JSON: %s", err.Error())
+		a.p.Errorf("The given payload is not JSON: \"%s\",\nnested error is: %s", payload, err.Error())
 		return // Really a t.Fatalf, but want a minimal Printer interface
 	}
-	expectedJSON, err := simplejson.NewJson([]byte(fmt.Sprintf(format, args...)))
+	formatted := fmt.Sprintf(format, args...)
+	expectedJSON, err := simplejson.NewJson([]byte(formatted))
 	if err != nil {
-		a.p.Errorf("jsonassert: cannot parse *expected JSON*: %s", err.Error())
+		a.p.Errorf("The expected payload is not JSON: \"%s\",\nnested error is: %s", formatted, err.Error())
 		return // Really a t.Fatalf, but want a minimal Printer interface
 	}
 	assertion := &assertion{asserter: a, exp: expectedJSON}

@@ -38,6 +38,18 @@ func TestAssertString(t *testing.T) {
 			assertedJSON:  `{"check": "ok"}`,
 			expAssertions: []string{},
 		},
+		{
+			payload:      `Can't parse this`,
+			assertedJSON: `{"check": "ok"}`,
+			expAssertions: []string{`The given payload is not JSON: "Can't parse this",
+nested error is: invalid character 'C' looking for beginning of value`},
+		},
+		{
+			payload:      `{"check": "ok"}`,
+			assertedJSON: `Can't parse this`,
+			expAssertions: []string{`The expected payload is not JSON: "Can't parse this",
+nested error is: invalid character 'C' looking for beginning of value`},
+		},
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)
