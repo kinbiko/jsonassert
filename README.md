@@ -41,6 +41,8 @@ Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON stru
 
 ### Advanced usage
 
+#### Validate presence, not value
+
 Some times you do not care about the value of a key, but only its presence. Take timestamps and UUIDs for example:
 
 ```json
@@ -61,6 +63,28 @@ In this case you may replace the expected value with `"<PRESENCE>"` to assert it
 ```
 
 `"<PRESENCE>"` works for any key, regardless of type.
+
+#### Advanced configuration
+
+Instead of calling `jsonassert.New(t)` you may call `jsonassert.NewWithConfig(t, config)`, which allows you to pass in a `jsonassert.Configuration` struct.
+
+```go
+{
+    // IgnoreNull, when set, will treat any null values in the JSON payload as
+    // if they were not present. In other words, no need to have a matching
+    // assertion payload property for null properties.
+    IgnoreNull: true,
+
+     // IgnoreArrayOrder, when set, will check that the values present in the
+     // actual JSON payload matches the assertion payload, but will ignore the
+     // order of these elements. Applies to all arrays in the payload.
+     IgnoreArrayOrder: true,
+
+    // When enabled will pretty-print the entire given JSON payload for any
+    // assertion failures.
+    Verbose: true,
+}
+```
 
 ## Docs
 
