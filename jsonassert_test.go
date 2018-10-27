@@ -18,8 +18,6 @@ func (ft *fakeT) Errorf(format string, args ...interface{}) {
 // Should be able to make assertions against the String representation of a
 // JSON payload
 func TestAssertString(t *testing.T) {
-	ft := new(fakeT)
-	ja := jsonassert.New(ft)
 	tt := []struct {
 		payload       string
 		assertedJSON  string
@@ -35,20 +33,32 @@ func TestAssertString(t *testing.T) {
 				`Expected key: "ok" to have value "yup" but was "nah"`,
 			},
 		},
+		{
+			payload:       `{"check": "ok"}`,
+			assertedJSON:  `{"check": "ok"}`,
+			expAssertions: []string{},
+		},
 	}
 	for _, tc := range tt {
+		ft := new(fakeT)
+		ja := jsonassert.New(ft)
 		ja.AssertString(tc.payload, tc.assertedJSON, tc.args...)
 
 		msgs := ft.receivedMessages
 		if exp, got := len(tc.expAssertions), len(msgs); exp != got {
 			t.Errorf("Expected %d error messages to be written, but there were %d", exp, got)
-			t.Errorf("Expected the following messages:")
-			for _, msg := range tc.expAssertions {
-				t.Errorf(msg)
+			if len(tc.expAssertions) > 0 {
+				t.Errorf("Expected the following messages:")
+				for _, msg := range tc.expAssertions {
+					t.Errorf(" - %s", msg)
+				}
 			}
-			t.Errorf("Got the following messages:")
-			for _, msg := range msgs {
-				t.Errorf(msg)
+
+			if len(msgs) > 0 {
+				t.Errorf("Got the following messages:")
+				for _, msg := range msgs {
+					t.Errorf(" - %s", msg)
+				}
 			}
 			return //Don't attempt the following assertions
 
