@@ -20,59 +20,79 @@ func (ft *fakeT) Errorf(format string, args ...interface{}) {
 func TestAssertString(t *testing.T) {
 	tt := []struct {
 		payload       string
-		assertedJSON  string
+		assertionJSON string
 		args          []interface{}
 		expAssertions []string
 	}{
 		{
+			// Simple valid check
 			payload:       `{"check": "ok"}`,
-			assertedJSON:  `{"check": "ok"}`,
+			assertionJSON: `{"check": "ok"}`,
 			expAssertions: []string{},
 		},
+
 		{
-			payload:      `Can't parse this`,
-			assertedJSON: `{"check": "ok"}`,
+			// Unparseable payload
+			payload:       `Can't parse this`,
+			assertionJSON: `{"check": "ok"}`,
 			expAssertions: []string{`The given payload is not JSON: "Can't parse this",
 nested error is: invalid character 'C' looking for beginning of value`},
 		},
+
 		{
-			payload:      `{"check": "ok"}`,
-			assertedJSON: `Can't parse this`,
+			// Unparseable assertion JSON
+			payload:       `{"check": "ok"}`,
+			assertionJSON: `Can't parse this`,
 			expAssertions: []string{`The expected payload is not JSON: "Can't parse this",
 nested error is: invalid character 'C' looking for beginning of value`},
 		},
+
 		{
-			payload:      `{"check": "nope", "ok": "nah"}`,
-			assertedJSON: `{"check": "%s", "ok": "yup"}`,
-			args:         []interface{}{"works"},
+			// Mutiple violations, including string formatting
+			payload:       `{"check": "nope", "ok": "nah"}`,
+			assertionJSON: `{"check": "%s", "ok": "yup"}`,
+			args:          []interface{}{"works"},
 			expAssertions: []string{
 				`Expected key: "check" to have value "works" but was "nope"`,
 				`Expected key: "ok" to have value "yup" but was "nah"`,
 			},
 		},
+
 		{
-			payload:      `{"ok": "yup"}`,
-			assertedJSON: `{"check": "%s", "ok": "yup"}`,
-			args:         []interface{}{"works"},
+			// Payload < Assertion JSON
+			payload:       `{"ok": "yup"}`,
+			assertionJSON: `{"check": "%s", "ok": "yup"}`,
+			args:          []interface{}{"works"},
 			expAssertions: []string{
 				`Expected key "check" to have value "works" but was not present in the payload`,
 			},
 		},
-		/*
-			{
-				payload:      `{"nested": {"check": "ok"}}`,
-				assertedJSON: `{"nested": {"check": "%s"}}`,
-				args:         []interface{}{"not ok"},
-				expAssertions: []string{
-					`Expected key: "nested.check" to have value "ok" but was "not ok"`,
-				},
+
+		{
+			// Payload > Assertion JSON
+			payload:       `{"check": "works", "ok": "yup"}`,
+			assertionJSON: `{"ok": "yup"}`,
+			expAssertions: []string{
+				`Unexpected key "check" present in the payload`,
 			},
+		},
+
+		/*
+			/*
+				{
+					payload:      `{"nested": {"check": "ok"}}`,
+					assertionJSON: `{"nested": {"check": "%s"}}`,
+					args:         []interface{}{"not ok"},
+					expAssertions: []string{
+						`Expected key: "nested.check" to have value "ok" but was "not ok"`,
+					},
+				},
 		*/
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)
 		ja := jsonassert.New(ft)
-		ja.AssertString(tc.payload, tc.assertedJSON, tc.args...)
+		ja.AssertString(tc.payload, tc.assertionJSON, tc.args...)
 
 		msgs := ft.receivedMessages
 		if exp, got := len(tc.expAssertions), len(msgs); exp != got {

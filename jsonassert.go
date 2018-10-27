@@ -96,6 +96,10 @@ func (a *assertion) checkField(actualVal *json.RawMessage, expVal interface{}, p
 	exp := a.exp.GetPath(pathSegments...).MustString()
 	got := string(bytes)[1 : len(bytes)-1] //TODO: this isn't very nice. I want to escape the quotes surrounding the JSON string here.
 	if got != exp {
-		a.asserter.p.Errorf(`Expected key: "%s" to have value "%+v" but was "%+v"`, path, exp, got)
+		if exp == "" {
+			a.asserter.p.Errorf(`Unexpected key "%s" present in the payload`, path)
+		} else {
+			a.asserter.p.Errorf(`Expected key: "%s" to have value "%+v" but was "%+v"`, path, exp, got)
+		}
 	}
 }
