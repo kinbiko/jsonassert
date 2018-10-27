@@ -53,8 +53,8 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			assertionJSON: `{"check": "%s", "ok": "yup"}`,
 			args:          []interface{}{"works"},
 			expAssertions: []string{
-				`Expected key: "check" to have value "works" but was "nope"`,
-				`Expected key: "ok" to have value "yup" but was "nah"`,
+				`Expected key "check" to have value "works" but was "nope"`,
+				`Expected key "ok" to have value "yup" but was "nah"`,
 			},
 		},
 
@@ -84,7 +84,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 					assertionJSON: `{"nested": {"check": "%s"}}`,
 					args:         []interface{}{"not ok"},
 					expAssertions: []string{
-						`Expected key: "nested.check" to have value "ok" but was "not ok"`,
+						`Expected key "nested.check" to have value "ok" but was "not ok"`,
 					},
 				},
 		*/

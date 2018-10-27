@@ -99,7 +99,7 @@ func (a *assertion) checkField(actualVal *json.RawMessage, expVal interface{}, p
 		if exp == "" {
 			a.asserter.p.Errorf(`Unexpected key "%s" present in the payload`, path)
 		} else {
-			a.asserter.p.Errorf(`Expected key: "%s" to have value "%+v" but was "%+v"`, path, exp, got)
+			a.asserter.p.Errorf(`Expected key "%s" to have value "%+v" but was "%+v"`, path, exp, got)
 		}
 	}
 }
