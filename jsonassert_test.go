@@ -78,21 +78,27 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		/*
-			/*
-				{
-					payload:      `{"nested": {"check": "ok"}}`,
-					assertionJSON: `{"nested": {"check": "%s"}}`,
-					args:         []interface{}{"not ok"},
-					expAssertions: []string{
-						`Expected key "nested.check" to have value "ok" but was "not ok"`,
-					},
+			{
+				// Payload > Assertion JSON
+				payload:       `{"numbah": 3}`,
+				assertionJSON: `{"numbah": 3}`,
+				expAssertions: []string{},
+			},
+
+			{
+				payload:      `{"nested": {"check": "ok"}}`,
+				assertionJSON: `{"nested": {"check": "%s"}}`,
+				args:         []interface{}{"not ok"},
+				expAssertions: []string{
+					`Expected key "nested.check" to have value "ok" but was "not ok"`,
 				},
+			},
 		*/
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)
 		ja := jsonassert.New(ft)
-		ja.AssertString(tc.payload, tc.assertionJSON, tc.args...)
+		ja.Assert(tc.payload, tc.assertionJSON, tc.args...)
 
 		msgs := ft.receivedMessages
 		if exp, got := len(tc.expAssertions), len(msgs); exp != got {
