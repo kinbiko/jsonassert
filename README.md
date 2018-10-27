@@ -70,4 +70,4 @@ You can find the [GoDocs for this package here](https://godoc.org/github.com/kin
 
 Contributions are welcome. Please discuss feature requests in an issue before opening a PR.
 
-If you use this project and would like to show your appreciation, I do accept donations in the form of code reviews. Feel free to have a look at the [eternal PR](https://github.com/kinbiko/jsonassert/pulls/1).
+If you use this project and would like to show your appreciation, I do accept donations in the form of code reviews. Feel free to have a look at the [eternal PR](https://github.com/kinbiko/jsonassert/pull/1).
