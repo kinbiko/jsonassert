@@ -25,15 +25,6 @@ func TestAssertString(t *testing.T) {
 		expAssertions []string
 	}{
 		{
-			payload:      `{"check": "nope", "ok": "nah"}`,
-			assertedJSON: `{"check": "%s", "ok": "yup"}`,
-			args:         []interface{}{"works"},
-			expAssertions: []string{
-				`Expected key: "check" to have value "works" but was "nope"`,
-				`Expected key: "ok" to have value "yup" but was "nah"`,
-			},
-		},
-		{
 			payload:       `{"check": "ok"}`,
 			assertedJSON:  `{"check": "ok"}`,
 			expAssertions: []string{},
@@ -50,6 +41,33 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			expAssertions: []string{`The expected payload is not JSON: "Can't parse this",
 nested error is: invalid character 'C' looking for beginning of value`},
 		},
+		{
+			payload:      `{"check": "nope", "ok": "nah"}`,
+			assertedJSON: `{"check": "%s", "ok": "yup"}`,
+			args:         []interface{}{"works"},
+			expAssertions: []string{
+				`Expected key: "check" to have value "works" but was "nope"`,
+				`Expected key: "ok" to have value "yup" but was "nah"`,
+			},
+		},
+		{
+			payload:      `{"ok": "yup"}`,
+			assertedJSON: `{"check": "%s", "ok": "yup"}`,
+			args:         []interface{}{"works"},
+			expAssertions: []string{
+				`Expected key "check" to have value "works" but was not present in the payload`,
+			},
+		},
+		/*
+			{
+				payload:      `{"nested": {"check": "ok"}}`,
+				assertedJSON: `{"nested": {"check": "%s"}}`,
+				args:         []interface{}{"not ok"},
+				expAssertions: []string{
+					`Expected key: "nested.check" to have value "ok" but was "not ok"`,
+				},
+			},
+		*/
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)

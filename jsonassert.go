@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	simplejson "github.com/bitly/go-simplejson"
+	"github.com/bitly/go-simplejson"
 )
 
 // Printer is what is going to print assertion violation error messages
+// In particular, *testing.T adheres to this interface.
 type Printer interface {
+	// Errorf takes a format string that can be augmented with the fmt.Sprintf
+	// arguments given in the vararg.
 	Errorf(string, ...interface{})
 }
 
@@ -51,23 +54,46 @@ func (a *asserter) AssertString(payload, format string, args ...interface{}) {
 }
 
 func (a *assertion) checkMap(jsonMap map[string]*json.RawMessage, path string) {
-	for k, v := range jsonMap {
+	m, err := a.exp.Map()
+	if err != nil {
+		a.asserter.p.Errorf("Attempted to turn expected payload into a map and failed because the actual payload has a nested json object at path '%s'", path)
+	}
+	checkedKeys := make(map[string]bool)
+	// Check that everything in the actual payload exists in the expected payload
+	for k, actualV := range jsonMap {
+		checkedKeys[k] = true
 		newPath := path + "." + k
 		if path == "" {
 			newPath = k
 		}
-		a.checkField(v, newPath)
+		a.checkField(actualV, m[k], newPath)
+	}
+
+	// Check that everything in the expected payload exists in the actual payload
+	for k, v := range m {
+		newPath := path + "." + k
+		if path == "" {
+			newPath = k
+		}
+		if !checkedKeys[k] {
+			a.checkField(jsonMap[k], v, newPath)
+		}
 	}
 }
 
-func (a *assertion) checkField(j *json.RawMessage, path string) {
-	// Should be safe to ignore error here: we have already parsed the payload
-	// as JSON at thiis point, and checkField is only called when we check
-	// values for keys
-	bytes, _ := j.MarshalJSON()
-	valueAtPath := strings.Split(path, ".")
+func (a *assertion) checkField(actualVal *json.RawMessage, expVal interface{}, path string) {
+	if actualVal == nil {
+		a.asserter.p.Errorf("Expected key \"%s\" to have value \"%+v\" but was not present in the payload", path, expVal)
+		return
+	}
+	bytes, err := actualVal.MarshalJSON()
+	if err != nil {
+		a.asserter.p.Errorf("Unexpected error when marshalling JSON: %s", err)
+		return
+	}
+	pathSegments := strings.Split(path, ".")
 	// TODO: Do not actually know the type at this stage, this assertion will crash in a horrible fire pretty soon
-	exp := a.exp.GetPath(valueAtPath...).MustString()
+	exp := a.exp.GetPath(pathSegments...).MustString()
 	got := string(bytes)[1 : len(bytes)-1] //TODO: this isn't very nice. I want to escape the quotes surrounding the JSON string here.
 	if got != exp {
 		a.asserter.p.Errorf(`Expected key: "%s" to have value "%+v" but was "%+v"`, path, exp, got)
