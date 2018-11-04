@@ -11,7 +11,7 @@ type Printer interface {
 // New creates a new Asserter based on the given Printer.
 // The Printer will be a *testing.T in 99% of your use cases.
 func New(p Printer) Asserter {
-	return &asserter{p: p}
+	return &asserter{p}
 }
 
 // Asserter exposes methods for asserting that JSON payloads match the given

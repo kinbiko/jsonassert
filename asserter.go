@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type asserter struct{ p Printer }
+type asserter struct{ Printer }
 
 type jsonType string
 
@@ -25,20 +25,20 @@ func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ..
 	case string:
 		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
 	default:
-		a.p.Errorf("Unsupported jsonPayload type: '%T'", jsonPayload)
+		a.Errorf("Unsupported jsonPayload type: '%T'", jsonPayload)
 	}
 }
 
 func (a *asserter) checkMap(payload, format, path string) {
 	got, err := readStringAsJSON(payload)
 	if err != nil {
-		a.p.Errorf(err.Error())
+		a.Errorf(err.Error())
 		return
 	}
 
 	exp, err := readStringAsJSON(format)
 	if err != nil {
-		a.p.Errorf(err.Error())
+		a.Errorf(err.Error())
 		return
 	}
 
@@ -68,27 +68,26 @@ func (a *asserter) checkMap(payload, format, path string) {
 func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, path string) {
 	//If got is empty xor exp is empty (both should be impossible) then print a message saying so and return
 	if got == nil {
-		a.p.Errorf(`Expected key "%s" to have value %s but was not present in the payload`, path, *exp)
+		a.Errorf(`Expected key "%s" to have value %s but was not present in the payload`, path, *exp)
 		return
 	}
 	gotBytes, err := got.MarshalJSON()
 	if err != nil {
-		a.p.Errorf("Unexpected error when marshalling payload: %s", err)
+		a.Errorf("Unexpected error when marshalling payload: %s", err)
 		return
 	}
 
 	if exp == nil {
-		a.p.Errorf(`Unexpected key "%s" present in the payload`, path)
+		a.Errorf(`Unexpected key "%s" present in the payload`, path)
 		return
 	}
 	expBytes, err := exp.MarshalJSON()
 	if err != nil {
-		a.p.Errorf("Unexpected error when marshalling expected JSON: %s", err)
+		a.Errorf("Unexpected error when marshalling expected JSON: %s", err)
 	}
 
 	// Then identify the type of both got and exp.
-	gotType := a.findVal(gotBytes)
-	expType := a.findVal(expBytes)
+	gotType, expType := findType(gotBytes), findType(expBytes)
 	// If the exp type is String and has value <PRESENCE>, then return without doing any further checking
 	if expType == jsonString && string(expBytes) == presenceKeyword {
 		return
@@ -96,9 +95,9 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 
 	// If their types are different, then write an error naming their types and their values.
 	if expType != gotType {
-		a.p.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
-		a.p.Errorf(`Got: '%s'\nExp: '%s'`, string(gotBytes), string(expBytes))
-		a.p.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
+		a.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
+		a.Errorf(`Got: '%s'\nExp: '%s'`, string(gotBytes), string(expBytes))
+		a.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
 	}
 
 	// If they are the same, split into calling different methods for different types.
@@ -114,13 +113,13 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 func (a *asserter) checkString(got, exp, path string) {
 	if got != exp {
 		if exp != "" {
-			a.p.Errorf(`Expected key "%s" to have value %+v but was %+v`, path, exp, got)
+			a.Errorf(`Expected key "%s" to have value %+v but was %+v`, path, exp, got)
 		}
 	}
 }
 
-func (a *asserter) findVal(bytes []byte) jsonType {
-	if bytes[0] == '{' {
+func findType(bytes []byte) jsonType {
+	if bytes[0] == '{' { //FIXME: Naive, but kidna works
 		return jsonObject
 	}
 	return jsonString
