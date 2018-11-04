@@ -19,7 +19,7 @@ func (ft *fakeT) Errorf(format string, args ...interface{}) {
 // JSON payload
 func TestAssertString(t *testing.T) {
 	tt := []struct {
-		payload       string
+		payload       interface{}
 		assertionJSON string
 		args          []interface{}
 		expAssertions []string
@@ -98,10 +98,22 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			payload:       `{"nested": {"check": "doesn't matter as long as I'm here"}}`,
 			assertionJSON: `{"nested": {"check": "<PRESENCE>"}}`,
 		},
-		// Remaining test cases before moving on to more features
-		//
-		// Differing types
-		// Unsupported json payload type
+		{
+			// Differing types of value
+			payload:       `{"key": 539}`,
+			assertionJSON: `{"key": "kagi"}`,
+			expAssertions: []string{
+				`Expected key "key" to have value "kagi" but was 539`,
+			},
+		},
+		{
+			// Unsupported json payload type
+			payload:       struct{ idk string }{idk: "whatever"},
+			assertionJSON: `{"key": "kagi"}`,
+			expAssertions: []string{
+				`Unsupported JSON type: 'struct { idk string }'`,
+			},
+		},
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)

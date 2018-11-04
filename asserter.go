@@ -25,7 +25,7 @@ func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ..
 	case string:
 		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
 	default:
-		a.Errorf("Unsupported jsonPayload type: '%T'", jsonPayload)
+		a.Errorf("Unsupported JSON type: '%T'", jsonPayload)
 	}
 }
 
@@ -83,13 +83,6 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 	// If the exp type is String and has value <PRESENCE>, then return without doing any further checking
 	if expType == jsonString && string(expBytes) == presenceKeyword {
 		return
-	}
-
-	// If their types are different, then write an error naming their types and their values.
-	if expType != gotType {
-		a.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
-		a.Errorf(`Got: '%s'\nExp: '%s'`, string(gotBytes), string(expBytes))
-		a.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
 	}
 
 	// If they are the same, split into calling different methods for different types.
