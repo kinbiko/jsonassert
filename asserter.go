@@ -12,11 +12,11 @@ type jsonType string
 
 const (
 	jsonString  jsonType = "string"
-	jsonArray   jsonType = "array"
 	jsonNumber  jsonType = "number"
-	jsonNull    jsonType = "null"
 	jsonObject  jsonType = "object"
 	jsonBoolean jsonType = "boolean"
+	jsonNull    jsonType = "null"
+	jsonArray   jsonType = "array"
 )
 
 const presenceKeyword = `"<PRESENCE>"`

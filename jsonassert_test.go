@@ -77,9 +77,27 @@ nested error is: invalid character 'C' looking for beginning of value`},
 
 		{
 			// Payload > Assertion JSON
-			payload:       `{"numbah": 3}`,
+			payload:       `{"numbah": 3, "fish": "here"}`,
 			assertionJSON: `{"numbah": 3}`,
-			expAssertions: []string{},
+			expAssertions: []string{`Unexpected key "fish" present in the payload`},
+		},
+
+		{
+			// Null in payload
+			payload:       `{"key": null}`,
+			assertionJSON: `{"key": "hello"}`,
+			expAssertions: []string{
+				`Expected key "key" to have value "hello" but was not present in the payload`,
+			},
+		},
+
+		{
+			// Null in assertion JSON
+			payload:       `{"key": "hello"}`,
+			assertionJSON: `{"key": null}`,
+			expAssertions: []string{
+				`Unexpected key "key" present in the payload`,
+			},
 		},
 
 		{
@@ -120,7 +138,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// booleans
+			// Booleans
 			payload:       `{"key": true}`,
 			assertionJSON: `{"key": false}`,
 			expAssertions: []string{

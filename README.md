@@ -70,15 +70,10 @@ Instead of calling `jsonassert.New(t)` you may call `jsonassert.NewWithConfig(t,
 
 ```go
 {
-    // IgnoreNull, when set, will treat any null values in the JSON payload as
-    // if they were not present. In other words, no need to have a matching
-    // assertion payload property for null properties.
-    IgnoreNull: true,
-
-     // IgnoreArrayOrder, when set, will check that the values present in the
-     // actual JSON payload matches the assertion payload, but will ignore the
-     // order of these elements. Applies to all arrays in the payload.
-     IgnoreArrayOrder: true,
+    // IgnoreArrayOrder, when set, will check that the values present in the
+    // actual JSON payload matches the assertion payload, but will ignore the
+    // order of these elements. Applies to all arrays in the payload.
+    IgnoreArrayOrder: true,
 
     // When enabled will pretty-print the entire given JSON payload for any
     // assertion failures.
