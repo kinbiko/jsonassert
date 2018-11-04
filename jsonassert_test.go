@@ -15,9 +15,7 @@ func (ft *fakeT) Errorf(format string, args ...interface{}) {
 	ft.receivedMessages = append(ft.receivedMessages, fmt.Sprintf(format, args...))
 }
 
-// Should be able to make assertions against the String representation of a
-// JSON payload
-func TestAssertString(t *testing.T) {
+func TestAssert(t *testing.T) {
 	tt := []struct {
 		payload       interface{}
 		assertionJSON string
@@ -93,25 +91,40 @@ nested error is: invalid character 'C' looking for beginning of value`},
 				`Expected key "nested.check" to have value "not ok" but was "ok"`,
 			},
 		},
+
 		{
 			// <PRESENCE> keyword
-			payload:       `{"nested": {"check": "doesn't matter as long as I'm here"}}`,
-			assertionJSON: `{"nested": {"check": "<PRESENCE>"}}`,
+			payload: `{
+				"uuid": "cb5230fc-f98f-4c63-abb7-d0588295983b",
+				"timestamp": "2018-10-26T23:43:50+00:00"
+			}`,
+			assertionJSON: `{"uuid": "<PRESENCE>", "timestamp": "<PRESENCE>"}`,
 		},
+
 		{
 			// Differing types of value
 			payload:       `{"key": 539}`,
-			assertionJSON: `{"key": "kagi"}`,
+			assertionJSON: `{"key": "539"}`,
 			expAssertions: []string{
-				`Expected key "key" to have value "kagi" but was 539`,
+				`Expected key "key" to have value "539" but was 539`,
 			},
 		},
+
 		{
 			// Unsupported json payload type
 			payload:       struct{ idk string }{idk: "whatever"},
 			assertionJSON: `{"key": "kagi"}`,
 			expAssertions: []string{
 				`Unsupported JSON type: 'struct { idk string }'`,
+			},
+		},
+
+		{
+			// booleans
+			payload:       `{"key": true}`,
+			assertionJSON: `{"key": false}`,
+			expAssertions: []string{
+				`Expected key "key" to have value 'false' but was 'true'`,
 			},
 		},
 	}

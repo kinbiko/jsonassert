@@ -3,6 +3,7 @@ package jsonassert
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type asserter struct{ Printer }
@@ -92,6 +93,10 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 		a.checkString(string(gotBytes), string(expBytes), path)
 	case jsonObject:
 		a.checkMap(string(gotBytes), string(expBytes), path)
+	case jsonBoolean:
+		g, _ := strconv.ParseBool(string(gotBytes))
+		e, _ := strconv.ParseBool(string(expBytes))
+		a.checkBool(g, e, path)
 	}
 }
 
@@ -103,7 +108,16 @@ func (a *asserter) checkString(got, exp, path string) {
 	}
 }
 
+func (a *asserter) checkBool(got, exp bool, path string) {
+	if got != exp {
+		a.Errorf(`Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
+	}
+}
+
 func findType(bytes []byte) jsonType {
+	if string(bytes) == "true" || string(bytes) == "false" {
+		return jsonBoolean
+	}
 	if bytes[0] == '{' { //FIXME: Naive, but kidna works
 		return jsonObject
 	}
