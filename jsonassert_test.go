@@ -35,7 +35,7 @@ func TestAssertString(t *testing.T) {
 			// Unparseable payload
 			payload:       `Can't parse this`,
 			assertionJSON: `{"check": "ok"}`,
-			expAssertions: []string{`The given payload is not JSON: "Can't parse this",
+			expAssertions: []string{`Invalid JSON given: "Can't parse this",
 nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
@@ -43,7 +43,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			// Unparseable assertion JSON
 			payload:       `{"check": "ok"}`,
 			assertionJSON: `Can't parse this`,
-			expAssertions: []string{`The expected payload is not JSON: "Can't parse this",
+			expAssertions: []string{`Invalid JSON given: "Can't parse this",
 nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
@@ -77,18 +77,18 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			},
 		},
 
+		{
+			// Payload > Assertion JSON
+			payload:       `{"numbah": 3}`,
+			assertionJSON: `{"numbah": 3}`,
+			expAssertions: []string{},
+		},
+
 		/*
 			{
-				// Payload > Assertion JSON
-				payload:       `{"numbah": 3}`,
-				assertionJSON: `{"numbah": 3}`,
-				expAssertions: []string{},
-			},
-
-			{
-				payload:      `{"nested": {"check": "ok"}}`,
+				payload:       `{"nested": {"check": "ok"}}`,
 				assertionJSON: `{"nested": {"check": "%s"}}`,
-				args:         []interface{}{"not ok"},
+				args:          []interface{}{"not ok"},
 				expAssertions: []string{
 					`Expected key "nested.check" to have value "ok" but was "not ok"`,
 				},
