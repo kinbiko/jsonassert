@@ -85,6 +85,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
+			// Nested payload
 			payload:       `{"nested": {"check": "ok"}}`,
 			assertionJSON: `{"nested": {"check": "%s"}}`,
 			args:          []interface{}{"not ok"},
@@ -92,6 +93,15 @@ nested error is: invalid character 'C' looking for beginning of value`},
 				`Expected key "nested.check" to have value "not ok" but was "ok"`,
 			},
 		},
+		{
+			// <PRESENCE> keyword
+			payload:       `{"nested": {"check": "doesn't matter as long as I'm here"}}`,
+			assertionJSON: `{"nested": {"check": "<PRESENCE>"}}`,
+		},
+		// Remaining test cases before moving on to more features
+		//
+		// Differing types
+		// Unsupported json payload type
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)

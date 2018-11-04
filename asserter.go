@@ -18,7 +18,7 @@ const (
 	jsonBoolean jsonType = "boolean"
 )
 
-const presenceKeyword = "<PRESENCE>"
+const presenceKeyword = `"<PRESENCE>"`
 
 func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ...interface{}) {
 	switch jsonPayload.(type) {
@@ -71,21 +71,13 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 		a.Errorf(`Expected key "%s" to have value %s but was not present in the payload`, path, *exp)
 		return
 	}
-	gotBytes, err := got.MarshalJSON()
-	if err != nil {
-		a.Errorf("Unexpected error when marshalling payload: %s", err)
-		return
-	}
+	gotBytes, _ := got.MarshalJSON()
 
 	if exp == nil {
 		a.Errorf(`Unexpected key "%s" present in the payload`, path)
 		return
 	}
-	expBytes, err := exp.MarshalJSON()
-	if err != nil {
-		a.Errorf("Unexpected error when marshalling expected JSON: %s", err)
-	}
-
+	expBytes, _ := exp.MarshalJSON()
 	// Then identify the type of both got and exp.
 	gotType, expType := findType(gotBytes), findType(expBytes)
 	// If the exp type is String and has value <PRESENCE>, then return without doing any further checking
