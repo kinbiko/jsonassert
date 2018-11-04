@@ -87,17 +87,17 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 	}
 
 	// Then identify the type of both got and exp.
-	gotType, gotVal := a.findVal(gotBytes)
-	expType, expVal := a.findVal(expBytes)
+	gotType := a.findVal(gotBytes)
+	expType := a.findVal(expBytes)
 	// If the exp type is String and has value <PRESENCE>, then return without doing any further checking
-	if expType == jsonString && expVal == presenceKeyword {
+	if expType == jsonString && string(expBytes) == presenceKeyword {
 		return
 	}
 
 	// If their types are different, then write an error naming their types and their values.
 	if expType != gotType {
 		a.p.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
-		a.p.Errorf(`Got: '%+v'\nExp: '%+v'`, gotVal, expVal)
+		a.p.Errorf(`Got: '%s'\nExp: '%s'`, string(gotBytes), string(expBytes))
 		a.p.Errorf(`Types of key "%s" different in payload (%s) and expected payload (%s)`, gotType, expType)
 	}
 
@@ -105,7 +105,7 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 	// No need to check for null as we know both got an exp are the same type, and there's only one form of null
 	switch gotType {
 	case jsonString:
-		a.checkString(gotVal.(string), expVal.(string), path)
+		a.checkString(string(gotBytes), string(expBytes), path)
 	case jsonObject:
 		a.checkMap(string(gotBytes), string(expBytes), path)
 	}
@@ -119,8 +119,11 @@ func (a *asserter) checkString(got, exp, path string) {
 	}
 }
 
-func (a *asserter) findVal(bytes []byte) (jsonType, interface{}) {
-	return jsonString, string(bytes)
+func (a *asserter) findVal(bytes []byte) jsonType {
+	if bytes[0] == '{' {
+		return jsonObject
+	}
+	return jsonString
 }
 
 func readStringAsJSON(s string) (map[string]*json.RawMessage, error) {

@@ -84,16 +84,14 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			expAssertions: []string{},
 		},
 
-		/*
-			{
-				payload:       `{"nested": {"check": "ok"}}`,
-				assertionJSON: `{"nested": {"check": "%s"}}`,
-				args:          []interface{}{"not ok"},
-				expAssertions: []string{
-					`Expected key "nested.check" to have value "ok" but was "not ok"`,
-				},
+		{
+			payload:       `{"nested": {"check": "ok"}}`,
+			assertionJSON: `{"nested": {"check": "%s"}}`,
+			args:          []interface{}{"not ok"},
+			expAssertions: []string{
+				`Expected key "nested.check" to have value "not ok" but was "ok"`,
 			},
-		*/
+		},
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)
