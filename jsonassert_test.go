@@ -145,6 +145,16 @@ nested error is: invalid character 'C' looking for beginning of value`},
 				`Expected key "key" to have value 'false' but was 'true'`,
 			},
 		},
+
+		{
+			// Arrays
+			payload:       `{"key": ["first", "second"]}`,
+			assertionJSON: `{"key": []}`,
+			expAssertions: []string{
+				// TODO: Ideally this would be more JSON-like, but for now this'll do.
+				`Expected key "key" to have value '[]' but was '[first second]'`,
+			},
+		},
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)

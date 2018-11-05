@@ -113,6 +113,11 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 		a.checkString(string(gotBytes), string(expBytes), path)
 	case jsonObject:
 		a.checkMap(string(gotBytes), string(expBytes), path)
+	case jsonArray:
+		var g, e []interface{}
+		json.Unmarshal(gotBytes, &g)
+		json.Unmarshal(expBytes, &e)
+		a.checkArray(g, e, path)
 	case jsonBoolean:
 		g, _ := strconv.ParseBool(string(gotBytes))
 		e, _ := strconv.ParseBool(string(expBytes))
@@ -134,9 +139,18 @@ func (a *asserter) checkBool(got, exp bool, path string) {
 	}
 }
 
+func (a *asserter) checkArray(got, exp []interface{}, path string) {
+	if len(got) != len(exp) {
+		a.Errorf(`Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
+	}
+}
+
 func findType(bytes []byte) jsonType {
 	if string(bytes) == "true" || string(bytes) == "false" {
 		return jsonBoolean
+	}
+	if bytes[0] == '[' {
+		return jsonArray
 	}
 	if bytes[0] == '{' { //FIXME: Naive, but kidna works
 		return jsonObject
