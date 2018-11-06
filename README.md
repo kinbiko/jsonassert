@@ -34,7 +34,7 @@ Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON stru
 `jsonassert.Assert` supports assertions against the following payload data types:
 
 - `string`
-- `*json.RawJSON`
+- `*json.RawMessage`
 - `*simplejson.Json`
 - `*http.Request`
 - Any `struct` with `json:` tags
