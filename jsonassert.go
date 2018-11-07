@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strconv"
 )
 
@@ -68,11 +69,19 @@ const (
 const presenceKeyword = `"<PRESENCE>"`
 
 func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ...interface{}) {
-	switch jsonPayload.(type) {
-	case string:
-		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
-	default:
-		a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+	if reflect.ValueOf(jsonPayload).Kind() == reflect.Struct {
+		b, err := json.Marshal(jsonPayload)
+		if err != nil {
+			a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+		}
+		a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
+	} else {
+		switch jsonPayload.(type) {
+		case string:
+			a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
+		default:
+			a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+		}
 	}
 }
 

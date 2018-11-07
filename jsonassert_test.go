@@ -15,6 +15,28 @@ func (ft *fakeT) Errorf(format string, args ...interface{}) {
 	ft.receivedMessages = append(ft.receivedMessages, fmt.Sprintf(format, args...))
 }
 
+type NestedStruct struct {
+	Whatever bool `json:"whatever"`
+}
+
+type taggedStruct struct {
+	MyNested *NestedStruct `json:"my_nested"`
+	MyBool   bool          `json:"my_bool"`
+	MyInt    int           `json:"my_int"`
+	MyFloat  float64       `json:"my_float"`
+	MyString string        `json:"my_string"`
+}
+
+var structExample = taggedStruct{
+	MyNested: &NestedStruct{
+		Whatever: false,
+	},
+	MyBool:   true,
+	MyInt:    4123,
+	MyFloat:  3.01,
+	MyString: "foobar",
+}
+
 func TestAssert(t *testing.T) {
 	tt := []struct {
 		payload       interface{}
@@ -130,10 +152,10 @@ nested error is: invalid character 'C' looking for beginning of value`},
 
 		{
 			// Unsupported json payload type
-			payload:       struct{ idk string }{idk: "whatever"},
+			payload:       []string{"wat"},
 			assertionJSON: `{"key": "kagi"}`,
 			expAssertions: []string{
-				`Unsupported JSON type: 'struct { idk string }'`,
+				`Unsupported JSON type: '[]string'`,
 			},
 		},
 
@@ -154,6 +176,28 @@ nested error is: invalid character 'C' looking for beginning of value`},
 				// TODO: Ideally this would be more JSON-like, but for now this'll do.
 				`Expected key "key" to have value '[]' but was '[first second]'`,
 			},
+		},
+
+		{
+			// Tagged struct
+			payload:       structExample,
+			assertionJSON: `{"my_float": 3.01, "my_nested": {"whatever": false}, "my_string": "foobar", "my_int": 4123, "my_bool": true}`,
+		},
+
+		{
+			// Non-Tagged struct
+			payload: struct {
+				MyFloat  float64
+				MyString string
+				MyInt    int
+				MyBool   bool
+			}{
+				MyFloat:  3.01,
+				MyString: "foobar",
+				MyInt:    4123,
+				MyBool:   true,
+			},
+			assertionJSON: `{"MyFloat": 3.01, "MyString": "foobar", "MyInt": 4123, "MyBool": true}`,
 		},
 	}
 	for _, tc := range tt {
