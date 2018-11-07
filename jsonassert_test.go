@@ -1,7 +1,9 @@
 package jsonassert_test
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/kinbiko/jsonassert"
@@ -38,21 +40,24 @@ var structExample = taggedStruct{
 }
 
 func TestAssert(t *testing.T) {
+	jsonStr := []byte(`{"ok": "hello", "seven":7, "fish": true, "foo": {"bar": "baz"}}`)
+	req, _ := http.NewRequest("POST", "http://example.com", bytes.NewBuffer(jsonStr))
 	tt := []struct {
+		useCase       string
 		payload       interface{}
 		assertionJSON string
 		args          []interface{}
 		expAssertions []string
 	}{
 		{
-			// Simple valid check
+			useCase:       "Simple valid check",
 			payload:       `{"check": "ok"}`,
 			assertionJSON: `{"check": "ok"}`,
 			expAssertions: []string{},
 		},
 
 		{
-			// Unparseable payload
+			useCase:       "Unparseable payload",
 			payload:       `Can't parse this`,
 			assertionJSON: `{"check": "ok"}`,
 			expAssertions: []string{`Invalid JSON given: "Can't parse this",
@@ -60,7 +65,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Unparseable assertion JSON
+			useCase:       "Unparseable assertion JSON",
 			payload:       `{"check": "ok"}`,
 			assertionJSON: `Can't parse this`,
 			expAssertions: []string{`Invalid JSON given: "Can't parse this",
@@ -68,7 +73,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Mutiple violations, including string formatting
+			useCase:       "Mutiple violations, including string formatting",
 			payload:       `{"check": "nope", "ok": "nah"}`,
 			assertionJSON: `{"check": "%s", "ok": "yup"}`,
 			args:          []interface{}{"works"},
@@ -79,7 +84,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Payload < Assertion JSON
+			useCase:       "Payload < Assertion JSON",
 			payload:       `{"ok": "yup"}`,
 			assertionJSON: `{"check": "%s", "ok": "yup"}`,
 			args:          []interface{}{"works"},
@@ -89,7 +94,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Payload > Assertion JSON
+			useCase:       "Payload > Assertion JSON",
 			payload:       `{"check": "works", "ok": "yup"}`,
 			assertionJSON: `{"ok": "yup"}`,
 			expAssertions: []string{
@@ -98,14 +103,14 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Payload > Assertion JSON
+			useCase:       "Payload > Assertion JSON",
 			payload:       `{"numbah": 3, "fish": "here"}`,
 			assertionJSON: `{"numbah": 3}`,
 			expAssertions: []string{`Unexpected key "fish" present in the payload`},
 		},
 
 		{
-			// Null in payload
+			useCase:       "Null in payload",
 			payload:       `{"key": null}`,
 			assertionJSON: `{"key": "hello"}`,
 			expAssertions: []string{
@@ -114,7 +119,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Null in assertion JSON
+			useCase:       "Null in assertion JSON",
 			payload:       `{"key": "hello"}`,
 			assertionJSON: `{"key": null}`,
 			expAssertions: []string{
@@ -123,7 +128,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Nested payload
+			useCase:       "Nested payload",
 			payload:       `{"nested": {"check": "ok"}}`,
 			assertionJSON: `{"nested": {"check": "%s"}}`,
 			args:          []interface{}{"not ok"},
@@ -133,7 +138,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// <PRESENCE> keyword
+			useCase: "<PRESENCE> keyword",
 			payload: `{
 				"uuid": "cb5230fc-f98f-4c63-abb7-d0588295983b",
 				"timestamp": "2018-10-26T23:43:50+00:00"
@@ -142,7 +147,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Differing types of value
+			useCase:       "Differing types of value",
 			payload:       `{"key": 539}`,
 			assertionJSON: `{"key": "539"}`,
 			expAssertions: []string{
@@ -151,7 +156,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Unsupported json payload type
+			useCase:       "Unsupported json payload type",
 			payload:       []string{"wat"},
 			assertionJSON: `{"key": "kagi"}`,
 			expAssertions: []string{
@@ -160,7 +165,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Booleans
+			useCase:       "Booleans",
 			payload:       `{"key": true}`,
 			assertionJSON: `{"key": false}`,
 			expAssertions: []string{
@@ -169,7 +174,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Arrays
+			useCase:       "Arrays",
 			payload:       `{"key": ["first", "second"]}`,
 			assertionJSON: `{"key": []}`,
 			expAssertions: []string{
@@ -179,13 +184,13 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		},
 
 		{
-			// Tagged struct
+			useCase:       "Tagged struct",
 			payload:       structExample,
 			assertionJSON: `{"my_float": 3.01, "my_nested": {"whatever": false}, "my_string": "foobar", "my_int": 4123, "my_bool": true}`,
 		},
 
 		{
-			// Non-Tagged struct
+			useCase: "Non-Tagged struct",
 			payload: struct {
 				MyFloat  float64
 				MyString string
@@ -199,6 +204,12 @@ nested error is: invalid character 'C' looking for beginning of value`},
 			},
 			assertionJSON: `{"MyFloat": 3.01, "MyString": "foobar", "MyInt": 4123, "MyBool": true}`,
 		},
+
+		{
+			useCase:       "*http.Request",
+			payload:       req,
+			assertionJSON: `{"fish": true, "foo": {"bar": "baz"}, "seven": 7, "ok": "hello"}`,
+		},
 	}
 	for _, tc := range tt {
 		ft := new(fakeT)
@@ -207,16 +218,16 @@ nested error is: invalid character 'C' looking for beginning of value`},
 
 		msgs := ft.receivedMessages
 		if exp, got := len(tc.expAssertions), len(msgs); exp != got {
-			t.Errorf("Expected %d error messages to be written, but there were %d", exp, got)
+			t.Errorf("'%s': Expected %d error messages to be written, but there were %d", tc.useCase, exp, got)
 			if len(tc.expAssertions) > 0 {
-				t.Errorf("Expected the following messages:")
+				t.Errorf("'%s': Expected the following messages:", tc.useCase)
 				for _, msg := range tc.expAssertions {
 					t.Errorf(" - %s", msg)
 				}
 			}
 
 			if len(msgs) > 0 {
-				t.Errorf("Got the following messages:")
+				t.Errorf("'%s': Got the following messages:", tc.useCase)
 				for _, msg := range msgs {
 					t.Errorf(" - %s", msg)
 				}
@@ -260,7 +271,7 @@ nested error is: invalid character 'C' looking for beginning of value`},
 		}
 
 		if totalError := unexpectedAssertions + missingAssertions; totalError != "" {
-			t.Errorf("Inconsistent assertions:\n%s", totalError)
+			t.Errorf("'%s': Inconsistent assertions:\n%s", tc.useCase, totalError)
 		}
 	}
 }

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"reflect"
 	"strconv"
 )
@@ -69,17 +71,25 @@ const (
 const presenceKeyword = `"<PRESENCE>"`
 
 func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ...interface{}) {
-	if reflect.ValueOf(jsonPayload).Kind() == reflect.Struct {
-		b, err := json.Marshal(jsonPayload)
+	switch jsonPayload.(type) {
+	case string:
+		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
+	case *http.Request:
+		r := jsonPayload.(*http.Request)
+		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+			a.fail(jsonPayload, "HTTP request does not have a JSON body.")
+		} else {
+			a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
 		}
-		a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
-	} else {
-		switch jsonPayload.(type) {
-		case string:
-			a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
-		default:
+	default:
+		if reflect.ValueOf(jsonPayload).Kind() == reflect.Struct {
+			b, err := json.Marshal(jsonPayload)
+			if err != nil {
+				a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+			}
+			a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
+		} else {
 			a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
 		}
 	}
