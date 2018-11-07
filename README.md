@@ -31,11 +31,10 @@ func TestWhatever(t *testing.T) {
 
 Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON structure.
 
-`jsonassert.Assert` supports assertions against the following payload data types:
+`Asserter.Assert()` supports assertions against the following payload data types:
 
 - `string`
 - `*json.RawMessage`
-- `*simplejson.Json`
 - `*http.Request`
 - Any `struct` with `json:` tags
 
@@ -43,7 +42,7 @@ Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON stru
 
 #### Validate presence, not value
 
-Some times you do not care about the value of a key, but only its presence. Take timestamps and UUIDs for example:
+Sometimes you do not care about the value of a key, but only its presence. Take timestamps and UUIDs for example:
 
 ```json
 {
