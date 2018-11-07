@@ -1,6 +1,7 @@
 package jsonassert
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -14,10 +15,12 @@ type Printer interface {
 	Errorf(string, ...interface{})
 }
 
+var defaultConfig = Configuration{Verbosity: Default}
+
 // New creates a new Asserter based on the given Printer.
 // The Printer will be a *testing.T in 99% of your use cases.
 func New(p Printer) Asserter {
-	return &asserter{p}
+	return &asserter{Printer: p, config: defaultConfig}
 }
 
 // Asserter exposes methods for asserting that JSON payloads match the given
@@ -26,7 +29,30 @@ type Asserter interface {
 	Assert(interface{}, string, ...interface{})
 }
 
-type asserter struct{ Printer }
+type verbosity int
+
+const (
+	// Default verbosity will print each assertion error that occurs, including
+	// the key and expected value if applicable.
+	Default verbosity = iota
+	// Verbose will print a pretty-printed version of the JSON against which
+	// you're asserting in the case of an assertion failure. In the case that
+	// the JSON cannot be pretty-printed, e.g. if it cannot be parsed as JSON
+	// then the payload will be shown as a string.
+	Verbose
+)
+
+// Configuration allows you to customise the Asserter further, e.g. to ignore
+// the order of array elements or to make the assertion failure output more
+// verobse.
+type Configuration struct {
+	Verbosity verbosity
+}
+
+type asserter struct {
+	Printer
+	config Configuration
+}
 
 type jsonType string
 
@@ -46,20 +72,20 @@ func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ..
 	case string:
 		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
 	default:
-		a.Errorf("Unsupported JSON type: '%T'", jsonPayload)
+		a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
 	}
 }
 
 func (a *asserter) checkMap(payload, format, path string) {
 	got, err := readStringAsJSON(payload)
 	if err != nil {
-		a.Errorf(err.Error())
+		a.fail(payload, err.Error())
 		return
 	}
 
 	exp, err := readStringAsJSON(format)
 	if err != nil {
-		a.Errorf(err.Error())
+		a.fail(payload, err.Error())
 		return
 	}
 
@@ -89,13 +115,13 @@ func (a *asserter) checkMap(payload, format, path string) {
 func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, path string) {
 	//If got is empty xor exp is empty (both should be impossible) then print a message saying so and return
 	if got == nil {
-		a.Errorf(`Expected key "%s" to have value %s but was not present in the payload`, path, *exp)
+		a.fail(got, `Expected key "%s" to have value %s but was not present in the payload`, path, *exp)
 		return
 	}
 	gotBytes, _ := got.MarshalJSON()
 
 	if exp == nil {
-		a.Errorf(`Unexpected key "%s" present in the payload`, path)
+		a.fail(got, `Unexpected key "%s" present in the payload`, path)
 		return
 	}
 	expBytes, _ := exp.MarshalJSON()
@@ -128,20 +154,20 @@ func (a *asserter) checkMapField(got *json.RawMessage, exp *json.RawMessage, pat
 func (a *asserter) checkString(got, exp, path string) {
 	if got != exp {
 		if exp != "" {
-			a.Errorf(`Expected key "%s" to have value %+v but was %+v`, path, exp, got)
+			a.fail(got, `Expected key "%s" to have value %+v but was %+v`, path, exp, got)
 		}
 	}
 }
 
 func (a *asserter) checkBool(got, exp bool, path string) {
 	if got != exp {
-		a.Errorf(`Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
+		a.fail(got, `Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
 	}
 }
 
 func (a *asserter) checkArray(got, exp []interface{}, path string) {
 	if len(got) != len(exp) {
-		a.Errorf(`Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
+		a.fail(got, `Expected key "%s" to have value '%v' but was '%v'`, path, exp, got)
 	}
 }
 
@@ -164,4 +190,22 @@ func readStringAsJSON(s string) (map[string]*json.RawMessage, error) {
 		return nil, fmt.Errorf("Invalid JSON given: \"%s\",\nnested error is: %s", s, err.Error())
 	}
 	return j, nil
+}
+
+func (a *asserter) fail(actual interface{}, errorMessage string, args ...interface{}) {
+	if a.config.Verbosity == Verbose {
+		prettyPrint(actual)
+	}
+	a.Errorf(errorMessage, args...)
+}
+
+func prettyPrint(actual interface{}) {
+	switch actual.(type) {
+	case string:
+		var out bytes.Buffer
+		json.Indent(&out, []byte(actual.(string)), "", "    ")
+		fmt.Println(string(out.Bytes()))
+	default:
+		fmt.Println(actual.(string))
+	}
 }
