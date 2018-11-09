@@ -70,63 +70,66 @@ const (
 
 const presenceKeyword = `"<PRESENCE>"`
 
-func (a *asserter) Assert(jsonPayload interface{}, assertionJSON string, args ...interface{}) {
-	switch jsonPayload.(type) {
+func (a *asserter) Assert(got interface{}, exp string, args ...interface{}) {
+	exp = fmt.Sprintf(exp, args...)
+	switch got.(type) {
 	case string:
-		a.checkMap(jsonPayload.(string), fmt.Sprintf(assertionJSON, args...), "")
+		a.checkMap(got.(string), exp, "")
 	case *http.Request:
-		r := jsonPayload.(*http.Request)
+		r := got.(*http.Request)
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			a.fail(jsonPayload, "HTTP request does not have a JSON body.")
+			a.fail(got, "HTTP request does not have a JSON body.")
 		} else {
-			a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
+			a.checkMap(string(b), exp, "")
 		}
 	default:
-		if reflect.ValueOf(jsonPayload).Kind() == reflect.Struct {
-			b, err := json.Marshal(jsonPayload)
+		if reflect.ValueOf(got).Kind() == reflect.Struct {
+			b, err := json.Marshal(got)
 			if err != nil {
-				a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+				a.fail(got, "Unsupported JSON type: '%T'", got)
 			}
-			a.checkMap(string(b), fmt.Sprintf(assertionJSON, args...), "")
+			a.checkMap(string(b), exp, "")
 		} else {
-			a.fail(jsonPayload, "Unsupported JSON type: '%T'", jsonPayload)
+			a.fail(got, "Unsupported JSON type: '%T'", got)
 		}
 	}
 }
 
-func (a *asserter) checkMap(payload, format, path string) {
-	got, err := readStringAsJSON(payload)
+func (a *asserter) checkMap(gotStr, expStr, path string) {
+	got, err := readStringAsJSON(gotStr)
 	if err != nil {
-		a.fail(payload, err.Error())
+		a.fail(gotStr, err.Error())
 		return
 	}
 
-	exp, err := readStringAsJSON(format)
+	exp, err := readStringAsJSON(expStr)
 	if err != nil {
-		a.fail(payload, err.Error())
+		a.fail(gotStr, err.Error())
 		return
 	}
 
 	checkedKeys := make(map[string]bool)
 	// Check that everything in the actual payload exists in the expected payload
-	for k, actualV := range got {
+	for k, gotVal := range got {
+		expVal := exp[k]
 		checkedKeys[k] = true
 		newPath := path + "." + k
 		if path == "" {
 			newPath = k
 		}
-		a.checkMapField(actualV, exp[k], newPath)
+		a.checkMapField(gotVal, expVal, newPath)
 	}
 
 	// Check that everything in the expected payload exists in the actual payload
-	for k, v := range exp {
+	for k, expVal := range exp {
+		gotVal := got[k]
 		newPath := path + "." + k
 		if path == "" {
 			newPath = k
 		}
 		if !checkedKeys[k] {
-			a.checkMapField(got[k], v, newPath)
+			a.checkMapField(gotVal, expVal, newPath)
 		}
 	}
 }
