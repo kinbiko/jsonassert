@@ -155,8 +155,88 @@ func New(t Failer) Asserter
                         1. start level `<level>.<arrayKey>[<index>]`
                         1. call [`parseObj`] with `expectedArray[<index>]` and `actualArray[<index>]`.
 
+#### Pseudocode:
+
+```go
+func Assert(actual, expected interface{}) {
+    if !validJSON(actual) {
+        p.Errorf("actual JSON could not be parsed as JSON")
+        return
+    }
+    if !validJSON(expected) {
+        p.Errorf("expected JSON could not be parsed as JSON")
+        return
+    }
+
+    actualType := getType(actual);
+    expectedType := getType(expected);
+
+    if actualType != expectedType {
+      p.Errorf("actual JSON (%s) and expected JSON (%s) are of different types and cannot be compared", actualType, expectedType)
+      return
+    }
+
+    findTypeAsserter(actualType).assertEqual("$", actual, expected)
+}
+
+type typeAsserter interface {
+    assertEqual(key string, actual, expected interface{})
+}
+
+func findTypeAsserter(jsonType string) {
+    switch (jsonType) {
+    case "string": return stringAsserter
+    case "number": return numberAsserter
+    case "boolean": return booleanAsserter
+    case "null": return nullAsserter
+    case "object": return objectAsserter
+    case "array": return arrayAsserter
+    default: panic("jsonassert fucked up")
+    }
+}
+
+func stringAsserter(key string, a, e interface{}) {
+    var actual, expected string
+    if actual, err := a.(string); err == nil {
+        panic(fmt.Sprintf("bug in jsonassert, incorrect asserter type called. Expected 'a' to be a string but was %T", a))
+    }
+    if expected, err := e.(string); err == nil {
+        panic(fmt.Sprintf("bug in jsonassert, incorrect asserter type called. Expected 'e' to be a string but was %T", e))
+    }
+    if actual != expected {
+        t.Errorf("Expected string to be 'a' but was 'b'")
+    }
+}
+
+func arrayAsserter(key string, actual, expected interface{}) {
+    aLen, eLen := len(actual), len(expected); aLen != eLen {
+    }
+                1. get length of expectedArray
+                1. get length of actualArray
+                1. If the lengths are different:
+                    1. report an error saying they're of different length
+                    1. gather all elements that exist in expectedArray and not in actualArray
+                        1. for all of these elements: report an error saying that this element was missing from the actual JSON, along with the pretty-printed JSON
+                    1. gather all elements that exist in actualArray and not in expectedArray
+                        1. for all of these elements: report an error saying that this additional element was present, along with the pretty-printed JSON
+                1. If the lengths are identical then we also validate the order of the elements:
+                    1. for each element index:
+                        1. start level `<level>.<arrayKey>[<index>]`
+                        1. call [`parseObj`] with `expectedArray[<index>]` and `actualArray[<index>]`.
+}
+```
 
 Note: Always base type checks on the expectedJSON, not the actualJSON.
+
+#### Key components
+
+- Validator: Validates that the user input is in fact valid JSON.
+- FooBar: Struct that holds: (maybe it's a stack?)
+    - Path
+    - The string representation of the current actual JSON
+    - The string representation of the current expected JSON
+    - The type of the actual JSON, if known
+    - The type of the expected JSON, if known
 
 #### Key features
 
