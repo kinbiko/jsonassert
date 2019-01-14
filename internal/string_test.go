@@ -1,17 +1,8 @@
 package internal
 
 import (
-	"fmt"
 	"testing"
 )
-
-type testPrinter struct {
-	messages []string
-}
-
-func (tp *testPrinter) Errorf(msg string, args ...interface{}) {
-	tp.messages = append(tp.messages, fmt.Sprintf(msg, args...))
-}
 
 func TestStringComparison(t *testing.T) {
 	t.Run("degenerate case", func(st *testing.T) {
