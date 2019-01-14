@@ -49,5 +49,28 @@ func TestNumberComparison(t *testing.T) {
 			st.Errorf(tp.messages[0])
 		}
 	})
+}
 
+func TestExtractNumber(t *testing.T) {
+	t.Run("case integer", func(st *testing.T) {
+		got, err := extractNumber("24")
+		if err != nil {
+			t.Fatalf("Error was: '%s'", err)
+		}
+		exp := 24.0
+		if got != exp {
+			t.Errorf("expected %f but got %f", exp, got)
+		}
+	})
+
+	t.Run("decimal", func(st *testing.T) {
+		got, err := extractNumber("24.1340632")
+		if err != nil {
+			t.Fatalf("Error was: '%s'", err)
+		}
+		exp := 24.1340632
+		if got != exp {
+			t.Errorf("expected %f but got %f", exp, got)
+		}
+	})
 }
