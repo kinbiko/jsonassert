@@ -102,10 +102,7 @@ Convert a `string` to a bool. Make sure to only accept `true` and `false`, and p
 ## `internal/array.go`
 
 1. If the lengths of `act` and `get` are different:
-  1. report an error saying they're of different length
-1. gather all elements that exist in `exp` and not in `act`
-  1. for all of these elements: report an error saying that this element was missing from the actual JSON
-1. gather all elements that exist in `act` and not in `exp`
-  1. for all of these elements: report an error saying that this additional element was present
-1. If the lengths are identical then we also validate the order of the elements:
-  1. call `Assert("<level>.<arrayIndex>", stringRepOfElement(act, <arrayIndex>), stringRepOfElement(exp, <arrayIndex>))`for each element index:
+    1. report an error saying they're of different length
+    1. Use the default go representation of the array to print an assertion message of roughly how they're different
+1. Else:
+    1. call `Assert("<level>.<arrayIndex>", stringRepOfElement(act, <arrayIndex>), stringRepOfElement(exp, <arrayIndex>))`for each element index:
