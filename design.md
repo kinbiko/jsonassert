@@ -56,6 +56,14 @@ return nil, fmt.Errorf("unable to identify type of %s", j)
   1. Object  -> checkObject(level, extractObject(act), extractObject(exp))
   1. Array   -> checkArray(level, extractArray(act), extractArray(exp))
 
+### `serialize(a interface{}) string`
+
+Essentially just a wrapper around `json.Marshal`. Should really never have an error at this level so let's panic.
+
+```golang
+bytes, err := json.Marshal(a)
+```
+
 ## `internal/string.go`
 
 ### `checkString(level, act, exp string)`
@@ -97,7 +105,7 @@ Convert a `string` to a bool. Make sure to only accept `true` and `false`, and p
   1. gather all keys that exist in `act` and not in `exp`
       1. for all of these keys: report an error saying that this additional key was present
 1. For each key that exists in both the expected JSON and the actual JSON:
-  1. call `Assert("<level>.<key>", stringRepOfKey(act, <key>), stringRepOfKey())`
+  1. call `Assert("<level>.<key>", serialize(act, <key>), serialize())`
 
 ## `internal/array.go`
 
@@ -105,4 +113,4 @@ Convert a `string` to a bool. Make sure to only accept `true` and `false`, and p
     1. report an error saying they're of different length
     1. Use the default go representation of the array to print an assertion message of roughly how they're different
 1. Else:
-    1. call `Assert("<level>.<arrayIndex>", stringRepOfElement(act, <arrayIndex>), stringRepOfElement(exp, <arrayIndex>))`for each element index:
+    1. call `Assert("<level>.<arrayIndex>", serialize(act, <arrayIndex>), serialize(exp, <arrayIndex>))`for each element index:
