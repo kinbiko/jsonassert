@@ -113,4 +113,4 @@ Convert a `string` to a bool. Make sure to only accept `true` and `false`, and p
     1. report an error saying they're of different length
     1. Use the default go representation of the array to print an assertion message of roughly how they're different
 1. Else:
-    1. call `Assert("<level>.<arrayIndex>", serialize(act, <arrayIndex>), serialize(exp, <arrayIndex>))`for each element index:
+    1. call `Assert("<level>[i]", serialize(act[i]), serialize(exp[i]))`for each element index:

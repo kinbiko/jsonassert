@@ -23,35 +23,13 @@ func TestDifferentLengthArrays(t *testing.T) {
 
 	a.checkArray("$", act, exp)
 
-	if got, expLen := len(tp.messages), 3; got != expLen {
+	if got, expLen := len(tp.messages), 2; got != expLen {
 		t.Fatalf("expected %d assertion messages but got %d", expLen, got)
 	}
 	if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
 		verifyAssertions(t, expMsg, got)
 	}
-	// TODO: instead expect unique elements more like how they look in JSON
-	if got, expMsg := tp.messages[1], "element present in actual JSON but not in expected JSON: [hello]"; got != expMsg {
-		verifyAssertions(t, expMsg, got)
-	}
-	if got, expMsg := tp.messages[2], "element present in expected JSON but not in actual JSON: [goodbye cruel]"; got != expMsg {
-		verifyAssertions(t, expMsg, got)
-	}
-}
-
-func TestEmptyArraysDifferentButSameLength(t *testing.T) {
-	tp, a := setup()
-	act := []interface{}{"The", "first", "letters"}
-	exp := []interface{}{"The", "second", "word"}
-
-	a.checkArray("$", act, exp)
-
-	if got, expLen := len(tp.messages), 4; got != expLen {
-		t.Fatalf("expected %d assertion messages written but got %d", expLen, got)
-	}
-	if got, expMsg := tp.messages[2], "expected element in position $[1] to be 'second' but was 'first'"; got != expMsg {
-		verifyAssertions(t, expMsg, got)
-	}
-	if got, expMsg := tp.messages[3], "expected element in position $[2] to be 'word' but was 'letters'"; got != expMsg {
+	if got, expMsg := tp.messages[1], "actual JSON at '$' was: [hello world], but expected JSON was: [goodbye cruel world]"; got != expMsg {
 		verifyAssertions(t, expMsg, got)
 	}
 }
@@ -70,7 +48,7 @@ func TestSuperset(t *testing.T) {
 		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 3, whereas expected JSON had length 2"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
-		if got, expMsg := tp.messages[1], "element present in actual JSON but not in expected JSON: [word]"; got != expMsg {
+		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [The first word], but expected JSON was: [The first]"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
 	})
@@ -88,14 +66,14 @@ func TestSuperset(t *testing.T) {
 		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
-		if got, expMsg := tp.messages[1], "element present in expected JSON but not in actual JSON: [word]"; got != expMsg {
+		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [The first], but expected JSON was: [The first word]"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
 	})
 }
 
 func verifyAssertions(t *testing.T, exp, got string) {
-	t.Errorf("expected assertion message \n'%s' but got \n'%s'", exp, got)
+	t.Errorf("expected assertion message\n'%s' but got\n'%s'", exp, got)
 }
 
 func setup() (*testPrinter, *asserter) {
