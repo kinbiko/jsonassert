@@ -1,8 +1,6 @@
 package internal
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestEmptyArraysAreEqual(t *testing.T) {
 	tp, a := setup()
