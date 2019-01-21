@@ -69,12 +69,3 @@ func TestSuperset(t *testing.T) {
 		}
 	})
 }
-
-func verifyAssertions(t *testing.T, exp, got string) {
-	t.Errorf("expected assertion message\n'%s' but got\n'%s'", exp, got)
-}
-
-func setup() (*testPrinter, *asserter) {
-	tp := &testPrinter{}
-	return tp, &asserter{printer: tp}
-}
