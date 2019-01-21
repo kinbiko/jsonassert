@@ -6,8 +6,7 @@ import (
 
 func TestStringComparison(t *testing.T) {
 	t.Run("degenerate case", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkString("$", "", "")
 		if got := len(tp.messages); got != 0 {
 			st.Errorf("expect no printed messages but there were %d", got)
@@ -15,8 +14,7 @@ func TestStringComparison(t *testing.T) {
 	})
 
 	t.Run("unequal case", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkString("$", "Foo", "Bar")
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))
@@ -28,8 +26,7 @@ func TestStringComparison(t *testing.T) {
 	})
 
 	t.Run("deeper level and case sensitive testing", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkString("$.here.wat", "foo", "Foo")
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))

@@ -37,8 +37,7 @@ func TestExtractBoolean(t *testing.T) {
 
 func TestCheckBoolean(t *testing.T) {
 	t.Run("equal", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkBoolean("$", true, true)
 		if got := len(tp.messages); got != 0 {
 			st.Errorf("expect no printed messages but there were %d", got)
@@ -46,8 +45,7 @@ func TestCheckBoolean(t *testing.T) {
 	})
 
 	t.Run("unequal", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkBoolean("$", true, false)
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))

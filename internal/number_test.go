@@ -4,8 +4,7 @@ import "testing"
 
 func TestNumberComparison(t *testing.T) {
 	t.Run("degenerate case", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkNumber("$", 0, 0)
 		if got := len(tp.messages); got != 0 {
 			st.Errorf("expect no printed messages but there were %d", got)
@@ -13,8 +12,7 @@ func TestNumberComparison(t *testing.T) {
 	})
 
 	t.Run("unequal case integer", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkNumber("$", 42, 1337)
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))
@@ -27,8 +25,7 @@ func TestNumberComparison(t *testing.T) {
 	})
 
 	t.Run("deeper level decimal", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkNumber("$.here.wat", 12.34, 43.21)
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))
@@ -41,8 +38,7 @@ func TestNumberComparison(t *testing.T) {
 	})
 
 	t.Run("unequal but within accepted difference", func(st *testing.T) {
-		tp := &testPrinter{}
-		a := &asserter{printer: tp}
+		tp, a := setup()
 		a.checkNumber("$.here.wat", 1.0000000, 1.0000003)
 		if got := len(tp.messages); got != 0 {
 			st.Errorf("expect no printed messages but there were %d", got)
