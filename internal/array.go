@@ -1,6 +1,10 @@
 package internal
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+)
 
 func (a *asserter) checkArray(level string, act, exp []interface{}) {
 	if len(act) != len(exp) {
@@ -11,4 +15,17 @@ func (a *asserter) checkArray(level string, act, exp []interface{}) {
 	for i := range act {
 		a.Assert(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
 	}
+}
+
+func extractArray(s string) ([]interface{}, error) {
+	s = strings.TrimSpace(s)
+	if len(s) == 0 {
+		return nil, fmt.Errorf("cannot parse empty string as array")
+	}
+	if s[0] != '[' {
+		return nil, fmt.Errorf("cannot parse '%s' as array", s)
+	}
+	var arr []interface{}
+	err := json.Unmarshal([]byte(s), &arr)
+	return arr, err
 }

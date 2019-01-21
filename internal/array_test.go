@@ -1,6 +1,8 @@
 package internal
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCheckArray(t *testing.T) {
 	t.Run("empty arrays are equal", func(st *testing.T) {
@@ -66,6 +68,53 @@ func TestCheckArray(t *testing.T) {
 		}
 		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [The first], but expected JSON was: [The first word]"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
+		}
+	})
+}
+
+func TestExtractArray(t *testing.T) {
+	t.Run("empty array", func(st *testing.T) {
+		s := "[]"
+		got, err := extractArray(s)
+		if err != nil {
+			st.Fatalf(err.Error())
+		}
+		if len(got) != 0 {
+			st.Errorf(`Expected "%s" to have length 1 but had length %d`, s, len(got))
+		}
+	})
+	t.Run("multiple elements in array", func(st *testing.T) {
+		s := `[null, 1, "hello", true, ["world"], {"foo": "bar"}]`
+		got, err := extractArray(s)
+		if err != nil {
+			st.Fatalf(err.Error())
+		}
+		if len(got) != 6 {
+			st.Errorf(`Expected "%s" to have length 6 but had length %d`, s, len(got))
+		}
+		ind := 0
+		if el, exp := got[ind], interface{}(nil); el != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
+		}
+		ind = 1
+		if el, exp := got[ind], float64(1); el != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
+		}
+		ind = 2
+		if el, exp := got[ind], "hello"; el != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
+		}
+		ind = 3
+		if el, exp := got[ind], true; el != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
+		}
+		ind = 4
+		if el, exp := got[ind].([]interface{}), "world"; el[0] != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
+		}
+		ind = 5
+		if el, exp := got[ind].(map[string]interface{}), "bar"; el["foo"] != exp {
+			st.Errorf(`Expected to find '%+v' in position %d but found %+v of type %T`, exp, ind, el, el)
 		}
 	})
 }
