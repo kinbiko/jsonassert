@@ -2,37 +2,37 @@ package internal
 
 import "testing"
 
-func TestEmptyArraysAreEqual(t *testing.T) {
-	tp, a := setup()
-	act := []interface{}{}
-	exp := []interface{}{}
+func TestCheckArray(t *testing.T) {
+	t.Run("empty arrays are equal", func(st *testing.T) {
+		tp, a := setup()
+		act := []interface{}{}
+		exp := []interface{}{}
 
-	a.checkArray("$", act, exp)
+		a.checkArray("$", act, exp)
 
-	if got := len(tp.messages); got != 0 {
-		t.Fatalf("expected 0 assertion messages written but got %d", got)
-	}
-}
+		if got := len(tp.messages); got != 0 {
+			st.Fatalf("expected 0 assertion messages written but got %d", got)
+		}
+	})
 
-func TestDifferentLengthArrays(t *testing.T) {
-	tp, a := setup()
-	act := []interface{}{"hello", "world"}
-	exp := []interface{}{"goodbye", "cruel", "world"}
+	t.Run("different length arrays", func(st *testing.T) {
+		tp, a := setup()
+		act := []interface{}{"hello", "world"}
+		exp := []interface{}{"goodbye", "cruel", "world"}
 
-	a.checkArray("$", act, exp)
+		a.checkArray("$", act, exp)
 
-	if got, expLen := len(tp.messages), 2; got != expLen {
-		t.Fatalf("expected %d assertion messages but got %d", expLen, got)
-	}
-	if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
-		verifyAssertions(t, expMsg, got)
-	}
-	if got, expMsg := tp.messages[1], "actual JSON at '$' was: [hello world], but expected JSON was: [goodbye cruel world]"; got != expMsg {
-		verifyAssertions(t, expMsg, got)
-	}
-}
+		if got, expLen := len(tp.messages), 2; got != expLen {
+			st.Fatalf("expected %d assertion messages but got %d", expLen, got)
+		}
+		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
+			verifyAssertions(st, expMsg, got)
+		}
+		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [hello world], but expected JSON was: [goodbye cruel world]"; got != expMsg {
+			verifyAssertions(st, expMsg, got)
+		}
+	})
 
-func TestSuperset(t *testing.T) {
 	t.Run("expected subset of actual", func(st *testing.T) {
 		tp, a := setup()
 		act := []interface{}{"The", "first", "word"}
