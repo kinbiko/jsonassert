@@ -1,5 +1,11 @@
 package internal
 
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+)
+
 func (a *asserter) checkObject(level string, act, exp map[string]interface{}) {
 	if len(act) != len(exp) {
 		a.printer.Errorf("different number of keys at level '%s' in actual JSON (%d) and expected JSON (%d)", level, len(act), len(exp))
@@ -34,4 +40,17 @@ func contains(container map[string]interface{}, candidate string) bool {
 		}
 	}
 	return false
+}
+
+func extractObject(s string) (map[string]interface{}, error) {
+	s = strings.TrimSpace(s)
+	if len(s) == 0 {
+		return nil, fmt.Errorf("cannot parse empty string as object")
+	}
+	if s[0] != '{' {
+		return nil, fmt.Errorf("cannot parse '%s' as object", s)
+	}
+	var arr map[string]interface{}
+	err := json.Unmarshal([]byte(s), &arr)
+	return arr, err
 }

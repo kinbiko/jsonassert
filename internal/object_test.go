@@ -1,6 +1,8 @@
 package internal
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestEmptyObjectsAreEqual(t *testing.T) {
 	tp, a := setup()
@@ -48,4 +50,17 @@ func TestMoreKeysExpInThanAct(t *testing.T) {
 	if got, expMsg := tp.messages[1], "at level '$', key(s) [hello] present in expected JSON but not in actual JSON"; got != expMsg {
 		verifyAssertions(t, expMsg, got)
 	}
+}
+
+func TestExtractObject(t *testing.T) {
+	t.Run("empty object", func(st *testing.T) {
+		s := "{}"
+		got, err := extractObject(s)
+		if err != nil {
+			t.Fatalf(err.Error())
+		}
+		if len(got) != 0 {
+			t.Errorf("expected empty object but got '%+v'", got)
+		}
+	})
 }
