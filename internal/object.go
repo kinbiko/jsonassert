@@ -34,7 +34,7 @@ func difference(act, exp map[string]interface{}) []string {
 }
 
 func contains(container map[string]interface{}, candidate string) bool {
-	for _, key := range container {
+	for key := range container {
 		if key == candidate {
 			return true
 		}
