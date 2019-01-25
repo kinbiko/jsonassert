@@ -42,59 +42,23 @@ const (
 
 func findType(j string) (jsonType, error) {
 	j = strings.TrimSpace(j)
-	if startsWith(j, `"`) {
-		_, err := extractString(j)
-		if err != nil {
-			return jsonTypeUnknown, fmt.Errorf("unable to extract string: %s", err.Error())
-		}
+	if _, err := extractString(j); err == nil {
 		return jsonString, nil
 	}
-	if startsWith(j, "0") ||
-		startsWith(j, "1") ||
-		startsWith(j, "2") ||
-		startsWith(j, "3") ||
-		startsWith(j, "4") ||
-		startsWith(j, "5") ||
-		startsWith(j, "6") ||
-		startsWith(j, "7") ||
-		startsWith(j, "8") ||
-		startsWith(j, "9") {
-		_, err := extractNumber(j)
-		if err != nil {
-			return jsonTypeUnknown, fmt.Errorf("unable to extract number: %s", err.Error())
-		}
+	if _, err := extractNumber(j); err == nil {
 		return jsonNumber, nil
 	}
 	if j == "null" {
 		return jsonNull, nil
 	}
-	if startsWith(j, "{") {
-		_, err := extractObject(j)
-		if err != nil {
-			return jsonTypeUnknown, fmt.Errorf("unable to extract object: %s", err.Error())
-		}
+	if _, err := extractObject(j); err == nil {
 		return jsonObject, nil
 	}
-	if j == "true" || j == "false" {
-		_, err := extractBoolean(j)
-		if err != nil {
-			return jsonTypeUnknown, fmt.Errorf("unable to extract boolean: %s", err.Error())
-		}
+	if _, err := extractBoolean(j); err == nil {
 		return jsonBoolean, nil
 	}
-	if startsWith(j, "[") {
-		_, err := extractArray(j)
-		if err != nil {
-			return jsonTypeUnknown, fmt.Errorf("unable to extract array: %s", err.Error())
-		}
+	if _, err := extractArray(j); err == nil {
 		return jsonArray, nil
 	}
 	return jsonTypeUnknown, fmt.Errorf("unable to identify JSON type of %s", j)
-}
-
-func startsWith(s, prefix string) bool {
-	if len(s) < len(prefix) {
-		return false
-	}
-	return s[:len(prefix)] == prefix
 }
