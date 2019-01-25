@@ -7,30 +7,30 @@ import (
 	"strings"
 )
 
-type asserter struct {
-	printer interface {
+type Asserter struct {
+	Printer interface {
 		Errorf(msg string, args ...interface{})
 	}
 }
 
 // Assert checks that the given actual and expected strings are identical representations of JSON.
 // If any discrepancies are found, these will be given to the Errorf function in the printer.
-func (a *asserter) Assert(level string, act, exp string) {
+func (a *Asserter) Assert(level string, act, exp string) {
 	if act == exp {
 		return
 	}
 	actType, err := findType(act)
 	if err != nil {
-		a.printer.Errorf("could not find type for actual JSON: " + err.Error())
+		a.Printer.Errorf("could not find type for actual JSON: " + err.Error())
 		return
 	}
 	expType, err := findType(exp)
 	if err != nil {
-		a.printer.Errorf("could not find type for expected JSON: " + err.Error())
+		a.Printer.Errorf("could not find type for expected JSON: " + err.Error())
 		return
 	}
 	if actType != expType {
-		a.printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types.", actType, expType)
+		a.Printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types.", actType, expType)
 		return
 	}
 	switch actType {

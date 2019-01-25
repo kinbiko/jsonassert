@@ -13,9 +13,9 @@ func (tp *testPrinter) Errorf(msg string, args ...interface{}) {
 	tp.messages = append(tp.messages, fmt.Sprintf(msg, args...))
 }
 
-func setup() (*testPrinter, *asserter) {
+func setup() (*testPrinter, *Asserter) {
 	tp := &testPrinter{}
-	return tp, &asserter{printer: tp}
+	return tp, &Asserter{Printer: tp}
 }
 
 func verifyAssertions(t *testing.T, exp, got string) {
