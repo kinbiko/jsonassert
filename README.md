@@ -1,5 +1,7 @@
 # `jsonassert`
 
+[![Build Status](https://travis-ci.com/kinbiko/jsonassert.svg?branch=master)](https://travis-ci.com/kinbiko/jsonassert)
+
 `jsonassert` is a Go test assertion library for asserting JSON payloads.
 
 ## Installation
