@@ -1,0 +1,11 @@
+language: go
+
+# TODO: Check if this actually is necessary:
+# Needed to allow for internal packages
+go_import_path: example.org/pkg/foo
+
+go:
+  - "1.10"
+  - "1.11"
+
+script: go test -v ./...
