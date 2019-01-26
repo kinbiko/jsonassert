@@ -1,0 +1,10 @@
+language: go
+
+# Needed to allow for internal packages
+go_import_path: github.com/kinbiko/jsonassert
+
+go:
+  - "1.10"
+  - "1.11"
+
+script: go test -v ./...
