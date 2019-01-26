@@ -1,8 +1,7 @@
 language: go
 
-# TODO: Check if this actually is necessary:
 # Needed to allow for internal packages
-go_import_path: example.org/pkg/foo
+go_import_path: github.com/kinbiko/jsonassert
 
 go:
   - "1.10"
