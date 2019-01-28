@@ -40,14 +40,13 @@ Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON stru
 Some properties of a JSON payload may be difficult to know in advance.
 E.g. timestamps, UUIDs, or other randomly assigned values.
 
-For these types of values, place the string `"<<PRESENCE>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, and its value is not `null`).
+For these types of values, place the string `"<<PRESENCE>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, and its value is not `null`), but not check it's value.
 
 For example:
 
 ```go
 func TestWhatever(t *testing.T) {
     ja := jsonassert.New(t)
-    // find some sort of payload
     ja.Assertf(`
     {
         "time": "2019-01-28T21:19:42",
@@ -63,11 +62,9 @@ func TestWhatever(t *testing.T) {
 
 The above will fail your test, but:
 
-
 ```go
 func TestWhatever(t *testing.T) {
     ja := jsonassert.New(t)
-    // find some sort of payload
     ja.Assertf(`
     {
         "date": "2019-01-28T21:19:42",
@@ -76,12 +73,11 @@ func TestWhatever(t *testing.T) {
     {
         "time": "<<PRESENCE>>",
         "uuid": "<<PRESENCE>>"
-
     }`)
 }
 ```
 
-Will fail your tests because the `time` key was not present in the actual JSON, and the `uuid` was `null`.
+The above will fail your tests because the `time` key was not present in the actual JSON, and the `uuid` was `null`.
 
 ## Docs
 
