@@ -1,4 +1,4 @@
-package internal
+package jsonassert
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ func (a *Asserter) checkObject(level string, act, exp map[string]interface{}) {
 	}
 	for key := range act {
 		if contains(exp, key) {
-			a.Assertf(level+"."+key, serialize(act[key]), serialize(exp[key]))
+			a.pathassertf(level+"."+key, serialize(act[key]), serialize(exp[key]))
 		}
 	}
 }
