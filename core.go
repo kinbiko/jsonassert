@@ -21,8 +21,17 @@ func (a *Asserter) pathassertf(level string, act, exp string) {
 		a.Printer.Errorf("could not find type for expected JSON: " + err.Error())
 		return
 	}
+
+	// If we're only caring about the presence of the key, then don't bother checking any further
+	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
+		if actType == jsonNull {
+			a.Printer.Errorf(`expected any value at '%s', but none was present`, level)
+		}
+		return
+	}
+
 	if actType != expType {
-		a.Printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types.", actType, expType)
+		a.Printer.Errorf("at '%s', actual JSON (%s) and expected JSON (%s) were of different types.", level, actType, expType)
 		return
 	}
 	switch actType {
