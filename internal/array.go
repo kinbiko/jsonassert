@@ -13,7 +13,7 @@ func (a *Asserter) checkArray(level string, act, exp []interface{}) {
 		return
 	}
 	for i := range act {
-		a.Assert(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+		a.Assertf(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
 	}
 }
 

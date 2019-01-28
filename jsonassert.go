@@ -27,13 +27,13 @@ func New(p Printer) *Asserter {
 	return &Asserter{asserter: &internal.Asserter{Printer: p}}
 }
 
-// Assert takes two strings, the first being the 'actual' JSON that you wish to
+// Assertf takes two strings, the first being the 'actual' JSON that you wish to
 // make assertions against. The second string is the 'expected' JSON, which
 // can be treated as a template for additional format arguments.
 // E.g. for the JSON {"hello": "world"}, you may use an expected JSON of
 // {"hello": "%s"}, along with the "world" format argument.
 // For example:
-// ja.Assert(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
-func (a *Asserter) Assert(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
-	a.asserter.Assert("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
+// ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
+func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
+	a.asserter.Assertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
