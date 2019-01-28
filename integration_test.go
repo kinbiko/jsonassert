@@ -15,7 +15,7 @@ func TestAssertf(t *testing.T) {
 		msgs []string
 	}{
 		{name: "different types", act: `"true"`, exp: `true`, msgs: []string{
-			`actual JSON (string) and expected JSON (boolean) were of different types.`,
+			`at '$', actual JSON (string) and expected JSON (boolean) were of different types.`,
 		}},
 		{name: "empty", act: "", exp: "", msgs: []string{}},
 		{name: "empty v null", act: "", exp: "null", msgs: []string{`could not find type for actual JSON: unable to identify JSON type of ""`}},
@@ -65,6 +65,14 @@ func TestAssertf(t *testing.T) {
 			`length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 1`,
 			`actual JSON at '$' was: [hello world], but expected JSON was: [world]`,
 		}},
+		{name: "presence against null", act: `{"foo": null}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{
+			`expected any value at '$.foo', but none was present`,
+		}},
+		{name: "presence against boolean", act: `{"foo": true}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{}},
+		{name: "presence against number", act: `{"foo": 1234}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{}},
+		{name: "presence against string", act: `{"foo": "hello world"}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{}},
+		{name: "presence against object", act: `{"foo": {"bar": "baz"}}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{}},
+		{name: "presence against object", act: `{"foo": ["bar", "baz"]}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{}},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(st *testing.T) {
