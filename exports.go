@@ -33,6 +33,13 @@ func New(p Printer) *Asserter {
 // {"hello": "%s"}, along with the "world" format argument.
 // For example:
 // ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
+//
+// Additionally, you may wish to make assertions against the *presence* of a value, but
+// For example:
+// ja.Assertf(`{"uuid": "94ae1a31-63b2-4a55-a478-47764b60c56b"}`, `{"hello":"<<PRESENCE>>"}`)
+// will verify that the UUID field is present, but does not check its actual value.
+// You may use "<<PRESENCE>>" against any type of value. The exception is null, which
+// will result in an assertion failure.
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
