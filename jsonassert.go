@@ -34,5 +34,5 @@ func New(p Printer) *Asserter {
 // For example:
 // ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
-	a.assertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
+	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }

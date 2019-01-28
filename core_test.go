@@ -66,7 +66,7 @@ func TestAssertf(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(st *testing.T) {
 			tp, a := setup()
-			a.assertf("$", tc.act, tc.exp)
+			a.pathassertf("$", tc.act, tc.exp)
 			if got := len(tp.messages); got != len(tc.msgs) {
 				st.Errorf("expected %d assertion message(s) but got %d", len(tc.msgs), got)
 				if len(tc.msgs) > 0 {
