@@ -8,5 +8,5 @@ import (
 
 func TestExternally(t *testing.T) {
 	ja := jsonassert.New(t)
-	ja.Assert(`{"hello": "world"}`, `{"hello": "%s"}`, "world")
+	ja.Assertf(`{"hello": "world"}`, `{"hello": "%s"}`, "world")
 }

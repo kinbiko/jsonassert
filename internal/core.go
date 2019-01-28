@@ -13,9 +13,9 @@ type Asserter struct {
 	}
 }
 
-// Assert checks that the given actual and expected strings are identical representations of JSON.
+// Assertf checks that the given actual and expected strings are identical representations of JSON.
 // If any discrepancies are found, these will be given to the Errorf function in the printer.
-func (a *Asserter) Assert(level string, act, exp string) {
+func (a *Asserter) Assertf(level string, act, exp string) {
 	if act == exp {
 		return
 	}
