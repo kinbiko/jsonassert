@@ -1,4 +1,4 @@
-package internal
+package jsonassert
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ func (a *Asserter) checkArray(level string, act, exp []interface{}) {
 		return
 	}
 	for i := range act {
-		a.Assertf(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+		a.assertf(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
 	}
 }
 

@@ -2,8 +2,6 @@ package jsonassert
 
 import (
 	"fmt"
-
-	"github.com/kinbiko/jsonassert/internal"
 )
 
 // Printer is any interface that has a testing.T-like Errorf function.
@@ -15,7 +13,7 @@ type Printer interface {
 // Asserter represents the main type of jsonassert.
 // See Asserter.Assert for the main use of this package.
 type Asserter struct {
-	asserter *internal.Asserter
+	Printer Printer
 }
 
 // New creates a new Asserter for making assertions against JSON.
@@ -24,16 +22,17 @@ type Asserter struct {
 // In most cases, this will look something like
 // ja := jsonassert.New(t) // t is an instance of *testing.T
 func New(p Printer) *Asserter {
-	return &Asserter{asserter: &internal.Asserter{Printer: p}}
+	return &Asserter{Printer: p}
 }
 
 // Assertf takes two strings, the first being the 'actual' JSON that you wish to
 // make assertions against. The second string is the 'expected' JSON, which
 // can be treated as a template for additional format arguments.
+// If any discrepancies are found, these will be given to the Errorf function in the printer.
 // E.g. for the JSON {"hello": "world"}, you may use an expected JSON of
 // {"hello": "%s"}, along with the "world" format argument.
 // For example:
 // ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
-	a.asserter.Assertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
+	a.assertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
