@@ -54,7 +54,7 @@ func TestAssertf(t *testing.T) {
 		}},
 		{name: "empty array v empty array", act: `[]`, exp: `[ ]`, msgs: []string{}},
 		{name: "non-empty array v empty array", act: `[null]`, exp: `[ ]`, msgs: []string{
-			`length of arrays at '$' were different. Actual JSON had length 1, whereas expected JSON had length 0`,
+			`length of arrays at '$' were different. Expected array to be of length 0, but contained 1 element(s)`,
 			`actual JSON at '$' was: [<nil>], but expected JSON was: []`,
 		}},
 		{name: "identical non-empty arrays", act: `["hello"]`, exp: `["hello"]`, msgs: []string{}},
@@ -62,7 +62,7 @@ func TestAssertf(t *testing.T) {
 			`expected value at '$[0]' to be 'world' but was 'hello'`,
 		}},
 		{name: "different length non-empty arrays", act: `["hello", "world"]`, exp: `["world"]`, msgs: []string{
-			`length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 1`,
+			`length of arrays at '$' were different. Expected array to be of length 1, but contained 2 element(s)`,
 			`actual JSON at '$' was: [hello world], but expected JSON was: [world]`,
 		}},
 		{name: "presence against null", act: `{"foo": null}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{

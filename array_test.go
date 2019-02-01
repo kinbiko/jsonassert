@@ -27,7 +27,7 @@ func TestCheckArray(t *testing.T) {
 		if got, expLen := len(tp.messages), 2; got != expLen {
 			st.Fatalf("expected %d assertion messages but got %d", expLen, got)
 		}
-		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
+		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Expected array to be of length 3, but contained 2 element(s)"; got != expMsg {
 			verifyAssertions(st, expMsg, got)
 		}
 		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [hello world], but expected JSON was: [goodbye cruel world]"; got != expMsg {
@@ -45,7 +45,7 @@ func TestCheckArray(t *testing.T) {
 		if got, expLen := len(tp.messages), 2; got != expLen {
 			t.Fatalf("expected %d assertion messages written but got %d", expLen, got)
 		}
-		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 3, whereas expected JSON had length 2"; got != expMsg {
+		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Expected array to be of length 2, but contained 3 element(s)"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
 		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [The first word], but expected JSON was: [The first]"; got != expMsg {
@@ -63,7 +63,7 @@ func TestCheckArray(t *testing.T) {
 		if got, expLen := len(tp.messages), 2; got != expLen {
 			t.Fatalf("expected %d assertion messages written but got %d", expLen, got)
 		}
-		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Actual JSON had length 2, whereas expected JSON had length 3"; got != expMsg {
+		if got, expMsg := tp.messages[0], "length of arrays at '$' were different. Expected array to be of length 3, but contained 2 element(s)"; got != expMsg {
 			verifyAssertions(t, expMsg, got)
 		}
 		if got, expMsg := tp.messages[1], "actual JSON at '$' was: [The first], but expected JSON was: [The first word]"; got != expMsg {
