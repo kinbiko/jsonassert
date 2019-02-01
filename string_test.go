@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+//TODO: what is *not* covered by the integration test but *is* covered by these tests?
+
 func TestStringComparison(t *testing.T) {
 	t.Run("degenerate case", func(st *testing.T) {
 		tp, a := setup()
@@ -19,7 +21,7 @@ func TestStringComparison(t *testing.T) {
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))
 		}
-		exp, got := "expected value at '$' to be 'Bar' but was 'Foo'", tp.messages[0]
+		exp, got := "expected string at '$' to be 'Bar' but was 'Foo'", tp.messages[0]
 		if exp != got {
 			st.Errorf("Expected error message '%s' but got '%s'", exp, got)
 		}
@@ -31,7 +33,7 @@ func TestStringComparison(t *testing.T) {
 		if len(tp.messages) != 1 {
 			st.Errorf("expect exactly one printed message but there were %d", len(tp.messages))
 		}
-		exp, got := "expected value at '$.here.wat' to be 'Foo' but was 'foo'", tp.messages[0]
+		exp, got := "expected string at '$.here.wat' to be 'Foo' but was 'foo'", tp.messages[0]
 		if exp != got {
 			st.Errorf("Expected error message '%s' but got '%s'", exp, got)
 		}

@@ -14,6 +14,6 @@ func extractBoolean(b string) (bool, error) {
 
 func (a *Asserter) checkBoolean(level string, act, exp bool) {
 	if act != exp {
-		a.Printer.Errorf("expected value at '%s' to be %v but was %v", level, exp, act)
+		a.Printer.Errorf("expected boolean at '%s' to be %v but was %v", level, exp, act)
 	}
 }
