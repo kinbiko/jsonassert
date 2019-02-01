@@ -6,19 +6,19 @@ import (
 	"strings"
 )
 
-func (a *Asserter) checkObject(level string, act, exp map[string]interface{}) {
+func (a *Asserter) checkObject(path string, act, exp map[string]interface{}) {
 	if len(act) != len(exp) {
-		a.Printer.Errorf("expected %d keys at '%s' but got %d keys", len(exp), level, len(act))
+		a.Printer.Errorf("expected %d keys at '%s' but got %d keys", len(exp), path, len(act))
 	}
 	if unique := difference(act, exp); len(unique) != 0 {
-		a.Printer.Errorf("unexpected object key(s) %+v found at '%s'", serialize(unique), level)
+		a.Printer.Errorf("unexpected object key(s) %+v found at '%s'", serialize(unique), path)
 	}
 	if unique := difference(exp, act); len(unique) != 0 {
-		a.Printer.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), level)
+		a.Printer.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), path)
 	}
 	for key := range act {
 		if contains(exp, key) {
-			a.pathassertf(level+"."+key, serialize(act[key]), serialize(exp[key]))
+			a.pathassertf(path+"."+key, serialize(act[key]), serialize(exp[key]))
 		}
 	}
 }

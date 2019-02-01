@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (a *Asserter) pathassertf(level string, act, exp string) {
+func (a *Asserter) pathassertf(path string, act, exp string) {
 	if act == exp {
 		return
 	}
@@ -25,36 +25,36 @@ func (a *Asserter) pathassertf(level string, act, exp string) {
 	// If we're only caring about the presence of the key, then don't bother checking any further
 	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
 		if actType == jsonNull {
-			a.Printer.Errorf(`expected the presence of any value at '%s', but was absent`, level)
+			a.Printer.Errorf(`expected the presence of any value at '%s', but was absent`, path)
 		}
 		return
 	}
 
 	if actType != expType {
-		a.Printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, level)
+		a.Printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
 		return
 	}
 	switch actType {
 	case jsonBoolean:
 		actBool, _ := extractBoolean(act)
 		expBool, _ := extractBoolean(exp)
-		a.checkBoolean(level, actBool, expBool)
+		a.checkBoolean(path, actBool, expBool)
 	case jsonNumber:
 		actNumber, _ := extractNumber(act)
 		expNumber, _ := extractNumber(exp)
-		a.checkNumber(level, actNumber, expNumber)
+		a.checkNumber(path, actNumber, expNumber)
 	case jsonString:
 		actString, _ := extractString(act)
 		expString, _ := extractString(exp)
-		a.checkString(level, actString, expString)
+		a.checkString(path, actString, expString)
 	case jsonObject:
 		actObject, _ := extractObject(act)
 		expObject, _ := extractObject(exp)
-		a.checkObject(level, actObject, expObject)
+		a.checkObject(path, actObject, expObject)
 	case jsonArray:
 		actArray, _ := extractArray(act)
 		expArray, _ := extractArray(exp)
-		a.checkArray(level, actArray, expArray)
+		a.checkArray(path, actArray, expArray)
 	}
 }
 
