@@ -8,7 +8,11 @@ import (
 
 func (a *Asserter) checkString(path, act, exp string) {
 	if act != exp {
-		a.Printer.Errorf("expected string at '%s' to be '%s' but was '%s'", path, exp, act)
+		if len(exp+act) < 50 {
+			a.Printer.Errorf("expected string at '%s' to be '%s' but was '%s'", path, exp, act)
+		} else {
+			a.Printer.Errorf("expected string at '%s' to be\n'%s'\nbut was\n'%s'", path, exp, act)
+		}
 	}
 }
 

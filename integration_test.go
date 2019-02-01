@@ -32,6 +32,12 @@ func TestAssertf(t *testing.T) {
 		{name: "identical strings", act: `"hello world"`, exp: `"hello world"`, msgs: []string{}},
 		{name: "identical empty strings", act: `""`, exp: `""`, msgs: []string{}},
 		{name: "different strings", act: `"hello"`, exp: `"world"`, msgs: []string{`expected string at '$' to be 'world' but was 'hello'`}},
+		{name: "different strings", act: `"lorem ipsum dolor sit amet lorem ipsum dolor sit amet"`, exp: `"lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"`, msgs: []string{
+			`expected string at '$' to be
+'lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?'
+but was
+'lorem ipsum dolor sit amet lorem ipsum dolor sit amet'`,
+		}},
 		{name: "empty v non-empty string", act: `""`, exp: `"world"`, msgs: []string{`expected string at '$' to be 'world' but was ''`}},
 		{name: "identical objects", act: `{"hello": "world"}`, exp: `{"hello":"world"}`, msgs: []string{}},
 		{name: "different keys in objects", act: `{"world": "hello"}`, exp: `{"hello":"world"}`, msgs: []string{
@@ -56,6 +62,13 @@ func TestAssertf(t *testing.T) {
 		{name: "non-empty array v empty array", act: `[null]`, exp: `[ ]`, msgs: []string{
 			`length of arrays at '$' were different. Expected array to be of length 0, but contained 1 element(s)`,
 			`actual JSON at '$' was: [null], but expected JSON was: []`,
+		}},
+		{name: "non-empty array v empty array", act: `[1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]`, exp: `[1,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]`, msgs: []string{
+			`length of arrays at '$' were different. Expected array to be of length 22, but contained 30 element(s)`,
+			`actual JSON at '$' was:
+[1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
+but expected JSON was:
+[1,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]`,
 		}},
 		{name: "identical non-empty arrays", act: `["hello"]`, exp: `["hello"]`, msgs: []string{}},
 		{name: "different non-empty arrays", act: `["hello"]`, exp: `["world"]`, msgs: []string{

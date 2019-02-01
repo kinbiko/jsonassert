@@ -9,7 +9,12 @@ import (
 func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 	if len(act) != len(exp) {
 		a.Printer.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
-		a.Printer.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serialize(act), serialize(exp))
+		serializedAct, serializedExp := serialize(act), serialize(exp)
+		if len(serializedAct+serializedExp) < 50 {
+			a.Printer.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serializedAct, serializedExp)
+		} else {
+			a.Printer.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v", path, serializedAct, serializedExp)
+		}
 		return
 	}
 	for i := range act {
