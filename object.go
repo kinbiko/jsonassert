@@ -8,13 +8,13 @@ import (
 
 func (a *Asserter) checkObject(level string, act, exp map[string]interface{}) {
 	if len(act) != len(exp) {
-		a.Printer.Errorf("different number of keys at level '%s' in actual JSON (%d) and expected JSON (%d)", level, len(act), len(exp))
+		a.Printer.Errorf("expected %d keys at '%s' but got %d keys", len(exp), level, len(act))
 	}
 	if unique := difference(act, exp); len(unique) != 0 {
-		a.Printer.Errorf("at level '%s', key(s) %+v present in actual JSON but not in expected JSON", level, unique)
+		a.Printer.Errorf("unexpected object key(s) %+v found at '%s'", serialize(unique), level)
 	}
 	if unique := difference(exp, act); len(unique) != 0 {
-		a.Printer.Errorf("at level '%s', key(s) %+v present in expected JSON but not in actual JSON", level, unique)
+		a.Printer.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), level)
 	}
 	for key := range act {
 		if contains(exp, key) {

@@ -13,25 +13,25 @@ func (a *Asserter) pathassertf(level string, act, exp string) {
 	}
 	actType, err := findType(act)
 	if err != nil {
-		a.Printer.Errorf("could not find type for actual JSON: " + err.Error())
+		a.Printer.Errorf("could not find JSON type (string, number, null, boolean, object, or array) for actual JSON: " + err.Error())
 		return
 	}
 	expType, err := findType(exp)
 	if err != nil {
-		a.Printer.Errorf("could not find type for expected JSON: " + err.Error())
+		a.Printer.Errorf("could not find JSON type (string, number, null, boolean, object, or array) for expected JSON: " + err.Error())
 		return
 	}
 
 	// If we're only caring about the presence of the key, then don't bother checking any further
 	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
 		if actType == jsonNull {
-			a.Printer.Errorf(`expected any value at '%s', but none was present`, level)
+			a.Printer.Errorf(`expected the presence of any value at '%s', but was absent`, level)
 		}
 		return
 	}
 
 	if actType != expType {
-		a.Printer.Errorf("at '%s', actual JSON (%s) and expected JSON (%s) were of different types.", level, actType, expType)
+		a.Printer.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, level)
 		return
 	}
 	switch actType {

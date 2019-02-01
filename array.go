@@ -9,7 +9,6 @@ import (
 func (a *Asserter) checkArray(level string, act, exp []interface{}) {
 	if len(act) != len(exp) {
 		a.Printer.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", level, len(exp), len(act))
-		//TODO: Put each JSON representation on a new line for easy comparison
 		a.Printer.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", level, serialize(act), serialize(exp))
 		return
 	}
