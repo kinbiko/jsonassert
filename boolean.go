@@ -12,8 +12,8 @@ func extractBoolean(b string) (bool, error) {
 	return false, fmt.Errorf("could not parse '%s' as a boolean", b)
 }
 
-func (a *Asserter) checkBoolean(level string, act, exp bool) {
+func (a *Asserter) checkBoolean(path string, act, exp bool) {
 	if act != exp {
-		a.Printer.Errorf("expected boolean at '%s' to be %v but was %v", level, exp, act)
+		a.Printer.Errorf("expected boolean at '%s' to be %v but was %v", path, exp, act)
 	}
 }

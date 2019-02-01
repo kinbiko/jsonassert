@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-func (a *Asserter) checkArray(level string, act, exp []interface{}) {
+func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 	if len(act) != len(exp) {
-		a.Printer.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", level, len(exp), len(act))
-		a.Printer.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", level, serialize(act), serialize(exp))
+		a.Printer.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
+		a.Printer.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serialize(act), serialize(exp))
 		return
 	}
 	for i := range act {
-		a.pathassertf(level+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+		a.pathassertf(path+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
 	}
 }
 
