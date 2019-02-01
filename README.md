@@ -2,17 +2,11 @@
 
 [![Build Status](https://travis-ci.com/kinbiko/jsonassert.svg?branch=master)](https://travis-ci.com/kinbiko/jsonassert)
 
-`jsonassert` is a Go test assertion library for asserting JSON payloads.
-
-## Installation
-
-```bash
-go get github.com/kinbiko/jsonassert
-```
+`jsonassert` is a Go test assertion library for verifying that two representations of JSON are semantically equal.
 
 ## Usage
 
-Create a new `jsonassert.Asserter` in your test and use this to make assertions against your JSON payloads:
+Create a new `*jsonassert.Asserter` in your test and use this to make assertions against your JSON payloads:
 
 ```go
 func TestWhatever(t *testing.T) {
@@ -31,16 +25,16 @@ func TestWhatever(t *testing.T) {
 }
 ```
 
-Notice that you can pass in `fmt.Sprintf` arguments after the expected JSON structure.
+You may pass in `fmt.Sprintf` arguments after the expected JSON structure.
 
-`Asserter.Assertf()` currently supports assertions against strings only.
+`ja.Assertf()` currently supports assertions against **strings only**.
 
 ### Check for presence only
 
 Some properties of a JSON payload may be difficult to know in advance.
 E.g. timestamps, UUIDs, or other randomly assigned values.
 
-For these types of values, place the string `"<<PRESENCE>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, and its value is not `null`), but not check it's value.
+For these types of values, place the string `"<<PRESENCE>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, and its value is not `null`), but this does not check its value.
 
 For example:
 
@@ -60,7 +54,7 @@ func TestWhatever(t *testing.T) {
 }
 ```
 
-The above will fail your test, but:
+The above will pass your test, but:
 
 ```go
 func TestWhatever(t *testing.T) {
