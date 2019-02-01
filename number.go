@@ -11,7 +11,7 @@ const minDiff = 0.000001
 func (a *Asserter) checkNumber(level string, act, exp float64) {
 	diff := math.Abs(act - exp)
 	if diff > minDiff {
-		a.Printer.Errorf("expected value at '%s' to be '%.7f' but was '%.7f'", level, exp, act)
+		a.Printer.Errorf("expected number at '%s' to be '%.7f' but was '%.7f'", level, exp, act)
 	}
 }
 

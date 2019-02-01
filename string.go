@@ -8,7 +8,7 @@ import (
 
 func (a *Asserter) checkString(level, act, exp string) {
 	if act != exp {
-		a.Printer.Errorf("expected value at '%s' to be '%s' but was '%s'", level, exp, act)
+		a.Printer.Errorf("expected string at '%s' to be '%s' but was '%s'", level, exp, act)
 	}
 }
 
