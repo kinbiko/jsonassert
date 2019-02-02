@@ -1,6 +1,9 @@
 # `jsonassert`
 
 [![Build Status](https://travis-ci.com/kinbiko/jsonassert.svg?branch=master)](https://travis-ci.com/kinbiko/jsonassert)
+![Latest version](https://img.shields.io/github/tag/kinbiko/jsonassert.svg?label=latest%20version&style=flat)
+[![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](http://godoc.org/github.com/kinbiko/jsonassert)
+![License](https://img.shields.io/github/license/kinbiko/jsonassert.svg?style=flat)
 
 `jsonassert` is a Go test assertion library for verifying that two representations of JSON are semantically equal.
 
