@@ -13,12 +13,12 @@ func (a *Asserter) pathassertf(path string, act, exp string) {
 	}
 	actType, err := findType(act)
 	if err != nil {
-		a.Printer.Errorf("could not find JSON type (string, number, null, boolean, object, or array) for actual JSON: " + err.Error())
+		a.Printer.Errorf("'actual' JSON is not valid JSON: " + err.Error())
 		return
 	}
 	expType, err := findType(exp)
 	if err != nil {
-		a.Printer.Errorf("could not find JSON type (string, number, null, boolean, object, or array) for expected JSON: " + err.Error())
+		a.Printer.Errorf("'expected' JSON is not valid JSON: " + err.Error())
 		return
 	}
 
