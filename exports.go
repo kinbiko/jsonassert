@@ -1,3 +1,5 @@
+// Package jsonassert is a Go test assertion library for verifying that two representations of JSON are semantically equal.
+// Create a new `*jsonassert.Asserter` in your test and use this to make assertions against your JSON payloads.
 package jsonassert
 
 import (
