@@ -4,4 +4,8 @@ go:
   - "1.10"
   - "1.11"
 
-script: go test -v ./...
+before_install:
+  - go get github.com/mattn/goveralls
+script:
+  - go test -v ./...
+  - $GOPATH/bin/goveralls -service=travis-ci
