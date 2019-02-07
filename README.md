@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/kinbiko/jsonassert.svg?branch=master)](https://travis-ci.com/kinbiko/jsonassert)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/jsonassert)](https://goreportcard.com/report/github.com/kinbiko/jsonassert)
+[![Coverage Status](https://coveralls.io/repos/github/kinbiko/jsonassert/badge.svg)](https://coveralls.io/github/kinbiko/jsonassert)
 [![Latest version](https://img.shields.io/github/tag/kinbiko/jsonassert.svg?label=latest%20version&style=flat)](https://github.com/kinbiko/jsonassert/releases)
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](http://godoc.org/github.com/kinbiko/jsonassert)
 [![License](https://img.shields.io/github/license/kinbiko/jsonassert.svg?style=flat)](https://github.com/kinbiko/jsonassert/blob/master/LICENSE)
