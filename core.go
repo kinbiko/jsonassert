@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (a *Asserter) pathassertf(path string, act, exp string) {
+func (a *Asserter) pathassertf(path, act, exp string) {
 	if act == exp {
 		return
 	}
