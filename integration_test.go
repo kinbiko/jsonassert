@@ -117,6 +117,84 @@ but expected JSON was:
 	}
 }
 
+type testTT struct {
+	testPrinter
+	invokedCount int
+}
+
+func (tt *testTT) Helper() {
+	tt.invokedCount++
+}
+
+func TestHelperGetsCalled(t *testing.T) {
+	testTable := []struct {
+		name     string
+		in       string
+		exp      string
+		expCount int
+	}{
+		{
+			name:     "1 at the top level, 1 for core",
+			in:       `null`,
+			exp:      `""`,
+			expCount: 2,
+		},
+		{
+			name:     "1 at the top level, 1 for core, 1 for boolean",
+			in:       `true`,
+			exp:      `false`,
+			expCount: 3,
+		},
+		{
+			name:     "1 at the top level, 1 for core, 1 for string",
+			in:       `"hello"`,
+			exp:      `"henlo"`,
+			expCount: 3,
+		},
+		{
+			name:     "1 at the top level, 1 for core, 1 for number",
+			in:       `1234`,
+			exp:      `4321`,
+			expCount: 3,
+		},
+		{
+			name:     "1 at the top level, 2 for core, 1 for object, 1 for string",
+			in:       `{"hello": "world"}`,
+			exp:      `{"hello": "世界"}`,
+			expCount: 5,
+		},
+		{
+			name:     "1 at the top level, 2 for core, 2 for object, 2 for string",
+			in:       `{"hello": {"name": "kinbiko"}}`,
+			exp:      `{"hello": {"name": "他の人"}}`,
+			expCount: 7,
+		},
+		{
+			name:     "1 at the top level, 2 for core, 1 for array, 2 for string",
+			in:       `["hello", "world"]`,
+			exp:      `["hello", "世界"]`,
+			expCount: 6,
+		},
+		{
+			name:     "1 at the top level, 4 for core, 3 for array, 4 for string",
+			in:       `[["hello", "world"], ["bye", "moon"]]`,
+			exp:      `[["hello", "世界"], ["bye", "月"]]`,
+			expCount: 13,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(st *testing.T) {
+			tt := &testTT{}
+			ja := jsonassert.New(tt)
+			ja.Assertf(tc.in, tc.exp) // assertions should never fail
+			if got := tt.invokedCount; got != tc.expCount {
+				st.Errorf("expected %d calls to Helper but got %d", tc.expCount, got)
+			}
+		})
+	}
+}
+
 func setup() (*testPrinter, *jsonassert.Asserter) {
 	tp := &testPrinter{}
 	return tp, jsonassert.New(tp)

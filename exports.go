@@ -54,5 +54,8 @@ func New(p Printer) *Asserter {
 // You may use "<<PRESENCE>>" against any type of value. The only exception is null, which
 // will result in an assertion failure.
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
+	if t, ok := a.Printer.(tt); ok {
+		t.Helper()
+	}
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }

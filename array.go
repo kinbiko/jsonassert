@@ -7,6 +7,9 @@ import (
 )
 
 func (a *Asserter) checkArray(path string, act, exp []interface{}) {
+	if t, ok := a.Printer.(tt); ok {
+		t.Helper()
+	}
 	if len(act) != len(exp) {
 		a.Printer.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)

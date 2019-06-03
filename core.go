@@ -8,6 +8,9 @@ import (
 )
 
 func (a *Asserter) pathassertf(path, act, exp string) {
+	if t, ok := a.Printer.(tt); ok {
+		t.Helper()
+	}
 	if act == exp {
 		return
 	}
@@ -101,4 +104,13 @@ func findType(j string) (jsonType, error) {
 		return jsonArray, nil
 	}
 	return jsonTypeUnknown, fmt.Errorf(`unable to identify JSON type of "%s"`, j)
+}
+
+// *testing.T has a Helper() func that allow testing tools like this package to
+// ignore their own frames when calling Errorf on *testing.T instances.
+// This interface is here to avoid breaking backwards compatibility in terms of
+// the interface we expect in New.
+type tt interface {
+	Printer
+	Helper()
 }

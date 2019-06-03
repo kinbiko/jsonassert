@@ -7,6 +7,9 @@ import (
 )
 
 func (a *Asserter) checkObject(path string, act, exp map[string]interface{}) {
+	if t, ok := a.Printer.(tt); ok {
+		t.Helper()
+	}
 	if len(act) != len(exp) {
 		a.Printer.Errorf("expected %d keys at '%s' but got %d keys", len(exp), path, len(act))
 	}
