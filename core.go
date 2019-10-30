@@ -26,6 +26,10 @@ func (a *Asserter) pathassertf(path, act, exp string) {
 	}
 
 	// If we're only caring about the presence of the key, then don't bother checking any further
+	if expPresenceOrNil, _ := extractString(exp); expPresenceOrNil == "<<KEY_EXISTS>>" {
+		return
+	}
+
 	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
 		if actType == jsonNull {
 			a.Printer.Errorf(`expected the presence of any value at '%s', but was absent`, path)

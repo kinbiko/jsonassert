@@ -1,14 +1,36 @@
 ![logo](./logo.png)
 
-[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
-[![Build Status](https://travis-ci.com/kinbiko/jsonassert.svg?branch=master)](https://travis-ci.com/kinbiko/jsonassert)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/jsonassert)](https://goreportcard.com/report/github.com/kinbiko/jsonassert)
-[![Coverage Status](https://coveralls.io/repos/github/kinbiko/jsonassert/badge.svg)](https://coveralls.io/github/kinbiko/jsonassert)
-[![Latest version](https://img.shields.io/github/tag/kinbiko/jsonassert.svg?label=latest%20version&style=flat)](https://github.com/kinbiko/jsonassert/releases)
-[![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](http://godoc.org/github.com/kinbiko/jsonassert)
-[![License](https://img.shields.io/github/license/kinbiko/jsonassert.svg?style=flat)](https://github.com/kinbiko/jsonassert/blob/master/LICENSE)
-
 `jsonassert` is a Go test assertion library for verifying that two representations of JSON are semantically equal.
+
+## NEW ADDED
+
+fork from https://github.com/kinbiko/jsonassert with new added functionality
+
+### Check for key exists or not (Does not care its value is `null` or not)
+
+Some properties of a JSON payload may be difficult to know in advance.
+E.g. timestamps, UUIDs, or other randomly assigned values.
+
+For these types of values, place the string `"<<KEY_EXISTS>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, Does not care its value is `null` or not).
+
+For example:
+
+```go
+func TestWhatever(t *testing.T) {
+    ja := jsonassert.New(t)
+    ja.Assertf(`
+    {
+        "time": "2019-01-28T21:19:42",
+        "uuid": null
+    }`, `
+    {
+        "time": "<<KEY_EXISTS>>",
+        "uuid": "<<KEY_EXISTS>>"
+
+    }`)
+}
+```
+
 
 ## Usage
 
@@ -81,7 +103,7 @@ The above will fail your tests because the `time` key was not present in the act
 
 ## Docs
 
-You can find the [GoDocs for this package here](https://godoc.org/github.com/kinbiko/jsonassert).
+You can find the [GoDocs for this package here](https://godoc.org/github.com/okisetiawan/jsonassert).
 
 ## Contributing
 
