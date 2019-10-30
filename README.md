@@ -13,7 +13,7 @@ E.g. timestamps, UUIDs, or other randomly assigned values.
 
 For these types of values, place the string `"<<KEY_EXISTS>>"` as the expected value, and `jsonassert` will only verify that this key exists (i.e. the actual JSON has the expected key, Does not care its value is `null` or not).
 
-For example:
+For example :
 
 ```go
 func TestWhatever(t *testing.T) {
