@@ -16,7 +16,7 @@ type Printer interface {
 // Asserter represents the main type within the jsonassert package.
 // See Asserter.Assertf for the main use of this package.
 type Asserter struct {
-	Printer Printer
+	tt
 }
 
 // New creates a new *jsonassert.Asserter for making assertions against JSON payloads.
@@ -26,13 +26,26 @@ type Asserter struct {
 //
 // ja := jsonassert.New(t)
 func New(p Printer) *Asserter {
-	return &Asserter{Printer: p}
+	// Initially this package was written without the assumption that the
+	// provided Printer will implement testing.tt, which includes the Helper()
+	// function to get better stacktraces in your testing utility functions.
+	// This assumption was later added in order to get more accurate stackframe
+	// information in test failures. In most cases users will pass in a
+	// *testing.T to this function, which does adhere to that interface.
+	// However, in order to be backwards compatible we also permit the use of
+	// printers that do not implement Helper(). This is done by wrapping the
+	// provided Printer into another struct that implements a NOOP Helper
+	// method.
+	if t, ok := p.(tt); ok {
+		return &Asserter{tt: t}
+	}
+	return &Asserter{tt: &noopHelperTT{Printer: p}}
 }
 
 // Assertf takes two strings, the first being the 'actual' JSON that you wish to
 // make assertions against. The second string is the 'expected' JSON, which
 // can be treated as a template for additional format arguments.
-// If any discrepancies are found, these will be given to the Errorf function in the printer.
+// If any discrepancies are found, these will be given to the Errorf function in the Printer.
 // E.g. for the JSON
 //
 // {"hello": "world"}
@@ -54,8 +67,6 @@ func New(p Printer) *Asserter {
 // You may use "<<PRESENCE>>" against any type of value. The only exception is null, which
 // will result in an assertion failure.
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
-	if t, ok := a.Printer.(tt); ok {
-		t.Helper()
-	}
+	a.tt.Helper()
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
