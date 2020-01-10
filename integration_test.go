@@ -74,6 +74,14 @@ but expected JSON was:
 		{name: "different non-empty arrays", act: `["hello"]`, exp: `["world"]`, msgs: []string{
 			`expected string at '$[0]' to be 'world' but was 'hello'`,
 		}},
+		{name: "identical non-empty unsorted arrays", act: `["hello", "world"]`, exp: `["<<UNORDERED>>", "world", "hello"]`, msgs: []string{}},
+		{name: "different non-empty unsorted arrays", act: `["hello", "world"]`, exp: `["<<UNORDERED>>", "世界", "hello"]`, msgs: []string{
+			`elements at '$' are different, even when ignoring order within the array:
+expected some ordering of
+["世界","hello"]
+but got
+["hello","world"]`,
+		}},
 		{name: "different length non-empty arrays", act: `["hello", "world"]`, exp: `["world"]`, msgs: []string{
 			`length of arrays at '$' were different. Expected array to be of length 1, but contained 2 element(s)`,
 			`actual JSON at '$' was: ["hello","world"], but expected JSON was: ["world"]`,

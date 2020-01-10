@@ -8,6 +8,13 @@ import (
 
 func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 	a.tt.Helper()
+
+	var unordered bool
+	if len(exp) > 0 && exp[0] == "<<UNORDERED>>" {
+		unordered = true
+		exp = exp[1:]
+	}
+
 	if len(act) != len(exp) {
 		a.tt.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)
@@ -18,9 +25,32 @@ func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 		}
 		return
 	}
-	for i := range act {
-		a.pathassertf(path+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+
+	if unordered {
+		for i := range act {
+			hasMatch := false
+			for j := range act {
+				ap := arrayPrinter{}
+				New(&ap).pathassertf("", serialize(act[i]), serialize(exp[j]))
+				hasMatch = hasMatch || len(ap) == 0
+			}
+			if !hasMatch {
+				serializedAct, serializedExp := serialize(act), serialize(exp)
+				a.tt.Errorf("elements at '%s' are different, even when ignoring order within the array:\nexpected some ordering of\n%s\nbut got\n%s", path, serializedExp, serializedAct)
+			}
+		}
+	} else {
+		for i := range act {
+			a.pathassertf(path+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+		}
 	}
+}
+
+type arrayPrinter []string
+
+func (p *arrayPrinter) Errorf(msg string, args ...interface{}) {
+	n := append(*p, fmt.Sprintf(msg, args...))
+	*p = n
 }
 
 func extractArray(s string) ([]interface{}, error) {
