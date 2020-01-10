@@ -7,14 +7,12 @@ import (
 )
 
 func (a *Asserter) checkString(path, act, exp string) {
-	if t, ok := a.Printer.(tt); ok {
-		t.Helper()
-	}
+	a.tt.Helper()
 	if act != exp {
 		if len(exp+act) < 50 {
-			a.Printer.Errorf("expected string at '%s' to be '%s' but was '%s'", path, exp, act)
+			a.tt.Errorf("expected string at '%s' to be '%s' but was '%s'", path, exp, act)
 		} else {
-			a.Printer.Errorf("expected string at '%s' to be\n'%s'\nbut was\n'%s'", path, exp, act)
+			a.tt.Errorf("expected string at '%s' to be\n'%s'\nbut was\n'%s'", path, exp, act)
 		}
 	}
 }

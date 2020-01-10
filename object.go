@@ -7,17 +7,15 @@ import (
 )
 
 func (a *Asserter) checkObject(path string, act, exp map[string]interface{}) {
-	if t, ok := a.Printer.(tt); ok {
-		t.Helper()
-	}
+	a.tt.Helper()
 	if len(act) != len(exp) {
-		a.Printer.Errorf("expected %d keys at '%s' but got %d keys", len(exp), path, len(act))
+		a.tt.Errorf("expected %d keys at '%s' but got %d keys", len(exp), path, len(act))
 	}
 	if unique := difference(act, exp); len(unique) != 0 {
-		a.Printer.Errorf("unexpected object key(s) %+v found at '%s'", serialize(unique), path)
+		a.tt.Errorf("unexpected object key(s) %+v found at '%s'", serialize(unique), path)
 	}
 	if unique := difference(exp, act); len(unique) != 0 {
-		a.Printer.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), path)
+		a.tt.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), path)
 	}
 	for key := range act {
 		if contains(exp, key) {
