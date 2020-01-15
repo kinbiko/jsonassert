@@ -73,6 +73,9 @@ func (a *Asserter) pathContainsf(path, act, exp string) {
 		a.tt.Errorf("'expected' JSON is not valid JSON: " + err.Error())
 		return
 	}
+	if expType == jsonNull {
+		return // Don't bother checking the field if it's not in the expected payload
+	}
 
 	// If we're only caring about the presence of the key, then don't bother checking any further
 	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
@@ -86,7 +89,7 @@ func (a *Asserter) pathContainsf(path, act, exp string) {
 		a.tt.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
 		return
 	}
-	switch actType {
+	switch expType {
 	case jsonBoolean:
 		actBool, _ := extractBoolean(act)
 		expBool, _ := extractBoolean(exp)
@@ -107,6 +110,8 @@ func (a *Asserter) pathContainsf(path, act, exp string) {
 		actArray, _ := extractArray(act)
 		expArray, _ := extractArray(exp)
 		a.checkContainsArray(path, actArray, expArray)
+	case jsonNull:
+		// Intentionally don't check as it wasn't expected in the payload
 	}
 }
 
