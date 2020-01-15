@@ -104,3 +104,8 @@ func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface
 	a.tt.Helper()
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
+
+func (a *Asserter) Containsf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
+	a.tt.Helper()
+	a.pathContainsf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
+}
