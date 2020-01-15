@@ -24,6 +24,22 @@ func (a *Asserter) checkObject(path string, act, exp map[string]interface{}) {
 	}
 }
 
+func (a *Asserter) checkContainsObject(path string, act, exp map[string]interface{}) {
+	a.tt.Helper()
+
+	if len(act) > len(exp) {
+		a.tt.Errorf("expected %d keys at '%s' but only got %d keys", len(exp), path, len(act))
+	}
+	if unique := difference(exp, act); len(unique) != 0 {
+		a.tt.Errorf("expected object key(s) %+v missing at '%s'", serialize(unique), path)
+	}
+	for key := range exp {
+		if contains(act, key) {
+			a.pathassertf(path+"."+key, serialize(act[key]), serialize(exp[key]))
+		}
+	}
+}
+
 func difference(act, exp map[string]interface{}) []string {
 	unique := []string{}
 	for key := range act {
