@@ -33,7 +33,7 @@ func TestWhatever(t *testing.T) {
 
 You may pass in `fmt.Sprintf` arguments after the expected JSON structure.
 
-`ja.Assertf()` currently supports assertions against **strings only**.
+`ja.Assertf()` supports assertions against **strings only**.
 
 ### Check for presence only
 
