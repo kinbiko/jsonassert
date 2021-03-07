@@ -63,38 +63,38 @@ func (a *Asserter) checkContainsArray(path string, act, exp []interface{}) {
 	if len(act) < len(exp) {
 		a.tt.Errorf("length of expected array at '%s' was longer (length %d) than the actual array (length %d)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)
-		if len(serializedAct+serializedExp) < 50 {
-			a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON to contain: %+v", path, serializedAct, serializedExp)
-		} else {
-			a.tt.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON to contain:\n%+v", path, serializedAct, serializedExp)
-		}
+		a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON to contain: %+v", path, serializedAct, serializedExp)
 		return
 	}
 
 	if unordered {
-		mismatchedExpPaths := map[string]string{}
-		for i := range exp {
-			found := false
-			serializedExp := serialize(exp[i])
-			for j := range act {
-				ap := arrayPrinter{}
-				serializedAct := serialize(act[j])
-				New(&ap).pathContainsf("", serializedAct, serializedExp)
-				if len(ap) == 0 {
-					found = true
-				}
+		a.checkContainsUnorderedArray(path, act, exp)
+		return
+	}
+	for i := range exp {
+		a.pathContainsf(fmt.Sprintf("%s[%d]", path, i), serialize(act[i]), serialize(exp[i]))
+	}
+}
+
+func (a *Asserter) checkContainsUnorderedArray(path string, act, exp []interface{}) {
+	mismatchedExpPaths := map[string]string{}
+	for i := range exp {
+		found := false
+		serializedExp := serialize(exp[i])
+		for j := range act {
+			ap := arrayPrinter{}
+			serializedAct := serialize(act[j])
+			New(&ap).pathContainsf("", serializedAct, serializedExp)
+			if len(ap) == 0 {
+				found = true
 			}
-			if !found {
-				mismatchedExpPaths[fmt.Sprintf("%s[%d]", path, i+1)] = serializedExp // + 1 because 0th element is "<<UNORDERED>>"
-			}
 		}
-		for path, serializedExp := range mismatchedExpPaths {
-			a.tt.Errorf("element at %s in the expected payload was not found anywhere in the actual JSON array:\n%s\nnot found in\n%s", path, serializedExp, serialize(act))
+		if !found {
+			mismatchedExpPaths[fmt.Sprintf("%s[%d]", path, i+1)] = serializedExp // + 1 because 0th element is "<<UNORDERED>>"
 		}
-	} else {
-		for i := range exp {
-			a.pathContainsf(fmt.Sprintf("%s[%d]", path, i), serialize(act[i]), serialize(exp[i]))
-		}
+	}
+	for path, serializedExp := range mismatchedExpPaths {
+		a.tt.Errorf("element at %s in the expected payload was not found anywhere in the actual JSON array:\n%s\nnot found in\n%s", path, serializedExp, serialize(act))
 	}
 }
 

@@ -181,6 +181,17 @@ not found in
 ["alpha","beta","gamma"]`,
 		}},
 
+		{name: "multi-element array contains itself", act: `["alpha", "beta"]`, exp: `["alpha", "beta"]`, msgs: nil},
+		{name: "multi-element array does not contain itself permuted", act: `["alpha", "beta"]`, exp: `["beta" ,"alpha"]`, msgs: []string{
+			"expected string at '$[0]' to be 'beta' but was 'alpha'",
+			"expected string at '$[1]' to be 'alpha' but was 'beta'",
+		}},
+
+		// Allow users to test against a subset of the payload without erroring out.
+		// This is to avoid the frustraion and unintuitive solution of adding "<<UNORDERED>>" in order to "enable" subsetting,
+		// which is really implied with the `contains` part of the API name.
+		{name: "multi-element array does not contain its subset", act: `["alpha", "beta"]`, exp: `["alpha"]`, msgs: []string{}},
+
 		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
 			"actual JSON (object) and expected JSON (null) were of different types at '$'",
 		}},
