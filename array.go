@@ -27,21 +27,26 @@ func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 	}
 
 	if unordered {
-		for i := range act {
-			hasMatch := false
-			for j := range act {
-				ap := arrayPrinter{}
-				New(&ap).pathassertf("", serialize(act[i]), serialize(exp[j]))
-				hasMatch = hasMatch || len(ap) == 0
-			}
-			if !hasMatch {
-				serializedAct, serializedExp := serialize(act), serialize(exp)
-				a.tt.Errorf("elements at '%s' are different, even when ignoring order within the array:\nexpected some ordering of\n%s\nbut got\n%s", path, serializedExp, serializedAct)
-			}
+		a.checkUnorderedArray(path, act, exp)
+		return
+	}
+
+	for i := range act {
+		a.pathassertf(path+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+	}
+}
+
+func (a *Asserter) checkUnorderedArray(path string, act, exp []interface{}) {
+	for i := range act {
+		hasMatch := false
+		for j := range act {
+			ap := arrayPrinter{}
+			New(&ap).pathassertf("", serialize(act[i]), serialize(exp[j]))
+			hasMatch = hasMatch || len(ap) == 0
 		}
-	} else {
-		for i := range act {
-			a.pathassertf(path+fmt.Sprintf("[%d]", i), serialize(act[i]), serialize(exp[i]))
+		if !hasMatch {
+			serializedAct, serializedExp := serialize(act), serialize(exp)
+			a.tt.Errorf("elements at '%s' are different, even when ignoring order within the array:\nexpected some ordering of\n%s\nbut got\n%s", path, serializedExp, serializedAct)
 		}
 	}
 }
