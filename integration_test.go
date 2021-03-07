@@ -160,6 +160,26 @@ func TestContainsf(t *testing.T) {
 			`actual JSON at '$' was: [], but expected JSON to contain: ["fish"]`,
 		}},
 		{name: "unordered multi-element array contains subset", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "beta", "alpha"]`, msgs: nil},
+		{name: "unordered multi-element array does not contain single element", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "delta", "alpha"]`, msgs: []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+		}},
+		{name: "unordered multi-element array contains none of multi-element array", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "delta", "pi", "omega"]`, msgs: []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[2] in the expected payload was not found anywhere in the actual JSON array:
+"pi"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[3] in the expected payload was not found anywhere in the actual JSON array:
+"omega"
+not found in
+["alpha","beta","gamma"]`,
+		}},
 
 		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
 			"actual JSON (object) and expected JSON (null) were of different types at '$'",
@@ -189,9 +209,23 @@ func TestContainsf(t *testing.T) {
 				}
 				return
 			}
-			for i := range tc.msgs {
-				if exp, got := tc.msgs[i], tp.messages[i]; got != exp {
+
+			if len(tc.msgs) == 1 {
+				if exp, got := tc.msgs[0], tp.messages[0]; got != exp {
 					st.Errorf("expected assertion message:\n'%s'\nbut got\n'%s'", exp, got)
+				}
+				return
+			}
+
+			for _, exp := range tc.msgs {
+				found := false
+				for _, got := range tp.messages {
+					if got == exp {
+						found = true
+					}
+				}
+				if !found {
+					st.Errorf("couldn't find expected assertion message:\n'%s'", exp)
 				}
 			}
 		})
