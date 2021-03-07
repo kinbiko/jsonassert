@@ -153,12 +153,13 @@ func TestContainsf(t *testing.T) {
 
 		{name: "empty array contains empty array", act: `[]`, exp: `[]`, msgs: nil},
 		{name: "single-element array contains empty array", act: `["fish"]`, exp: `[]`, msgs: nil},
-		{name: "unordered empty array contains empty array", act: `["<<UNORDERED>>"]`, exp: `[]`, msgs: nil},
-		{name: "unordered single-element array contains empty array", act: `["<<UNORDERED>>", "fish"]`, exp: `[]`, msgs: nil},
+		{name: "unordered empty array contains empty array", act: `[]`, exp: `["<<UNORDERED>>"]`, msgs: nil},
+		{name: "unordered single-element array contains empty array", act: `["fish"]`, exp: `["<<UNORDERED>>"]`, msgs: nil},
 		{name: "empty array contains single-element array", act: `[]`, exp: `["fish"]`, msgs: []string{
 			"length of expected array at '$' was longer (length 1) than the actual array (length 0)",
 			`actual JSON at '$' was: [], but expected JSON to contain: ["fish"]`,
 		}},
+		{name: "unordered multi-element array contains subset", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "beta", "alpha"]`, msgs: nil},
 
 		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
 			"actual JSON (object) and expected JSON (null) were of different types at '$'",

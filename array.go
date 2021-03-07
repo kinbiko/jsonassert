@@ -74,13 +74,18 @@ func (a *Asserter) checkContainsArray(path string, act, exp []interface{}) {
 	if unordered {
 		mismatchedExpPaths := map[string]string{}
 		for i := range exp {
+			found := false
+			serializedExp := serialize(exp[i])
 			for j := range act {
 				ap := arrayPrinter{}
-				serializedAct, serializedExp := serialize(act[i]), serialize(exp[j])
+				serializedAct := serialize(act[j])
 				New(&ap).pathContainsf("", serializedAct, serializedExp)
-				if len(ap) > 0 {
-					mismatchedExpPaths[fmt.Sprintf("%s[%d]", path, i+1)] = serializedExp // + 1 because 0th element is "<<UNORDERED>>"
+				if len(ap) == 0 {
+					found = true
 				}
+			}
+			if !found {
+				mismatchedExpPaths[fmt.Sprintf("%s[%d]", path, i+1)] = serializedExp // + 1 because 0th element is "<<UNORDERED>>"
 			}
 		}
 		for path, serializedExp := range mismatchedExpPaths {
