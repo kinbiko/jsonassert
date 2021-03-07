@@ -187,6 +187,7 @@ not found in
 		{name: "expected any value, but got null", act: `{"foo": null}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{
 			"expected the presence of any value at '$.foo', but was absent",
 		}},
+		{name: "unordered multi-element array of different types contains subset", act: `["alpha", 5, false, ["foo"], {"bar": "baz"}]`, exp: `["<<UNORDERED>>", 5, "alpha", {"bar": "baz"}]`, msgs: nil},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(st *testing.T) {
