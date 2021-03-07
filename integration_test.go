@@ -150,7 +150,6 @@ func TestContainsf(t *testing.T) {
 		{name: "boolean does not contain a different boolean", act: `true`, exp: `false`, msgs: []string{
 			"expected boolean at '$' to be false but was true",
 		}},
-
 		{name: "empty array contains empty array", act: `[]`, exp: `[]`, msgs: nil},
 		{name: "single-element array contains empty array", act: `["fish"]`, exp: `[]`, msgs: nil},
 		{name: "unordered empty array contains empty array", act: `[]`, exp: `["<<UNORDERED>>"]`, msgs: nil},
@@ -180,18 +179,19 @@ not found in
 not found in
 ["alpha","beta","gamma"]`,
 		}},
-
 		{name: "multi-element array contains itself", act: `["alpha", "beta"]`, exp: `["alpha", "beta"]`, msgs: nil},
 		{name: "multi-element array does not contain itself permuted", act: `["alpha", "beta"]`, exp: `["beta" ,"alpha"]`, msgs: []string{
 			"expected string at '$[0]' to be 'beta' but was 'alpha'",
 			"expected string at '$[1]' to be 'alpha' but was 'beta'",
 		}},
-
 		// Allow users to test against a subset of the payload without erroring out.
 		// This is to avoid the frustraion and unintuitive solution of adding "<<UNORDERED>>" in order to "enable" subsetting,
 		// which is really implied with the `contains` part of the API name.
-		{name: "multi-element array does not contain its subset", act: `["alpha", "beta"]`, exp: `["alpha"]`, msgs: []string{}},
-
+		{name: "multi-element array does contain its subset", act: `["alpha", "beta"]`, exp: `["alpha"]`, msgs: []string{}},
+		{name: "multi-element array does not contain its superset", act: `["alpha", "beta"]`, exp: `["alpha", "beta", "gamma"]`, msgs: []string{
+			"length of expected array at '$' was longer (length 3) than the actual array (length 2)",
+			`actual JSON at '$' was: ["alpha","beta"], but expected JSON to contain: ["alpha","beta","gamma"]`,
+		}},
 		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
 			"actual JSON (object) and expected JSON (null) were of different types at '$'",
 		}},
@@ -199,6 +199,40 @@ not found in
 			"expected the presence of any value at '$.foo', but was absent",
 		}},
 		{name: "unordered multi-element array of different types contains subset", act: `["alpha", 5, false, ["foo"], {"bar": "baz"}]`, exp: `["<<UNORDERED>>", 5, "alpha", {"bar": "baz"}]`, msgs: nil},
+
+		{name: "object contains its subset", act: `{"foo": "bar", "alpha": "omega"}`, exp: `{"alpha": "omega"}`, msgs: nil},
+		/*
+			{
+				name: "big fat test",
+				act: `{
+						"arr": [
+							"alpha",
+							5,
+							false,
+							["foo"],
+							{
+								"bar": "baz",
+								"fork": {
+									"start": "stop"
+								},
+								"nested": ["really", "fast"]
+							}
+						],
+						"fish": "mooney"
+					}`,
+				exp: `{
+						"arr": [
+							"<<UNORDERED>>",
+							5,
+							{
+								"fork": {
+									"start": "stop"
+								},
+								"nested": ["fast"]
+							}
+						]
+					}`, msgs: nil},
+		*/
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(st *testing.T) {
