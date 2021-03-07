@@ -35,7 +35,7 @@ func (a *Asserter) checkContainsObject(path string, act, exp map[string]interfac
 	}
 	for key := range exp {
 		if contains(act, key) {
-			a.pathassertf(path+"."+key, serialize(act[key]), serialize(exp[key]))
+			a.pathContainsf(path+"."+key, serialize(act[key]), serialize(exp[key]))
 		}
 	}
 }

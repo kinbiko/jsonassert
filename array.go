@@ -61,12 +61,12 @@ func (a *Asserter) checkContainsArray(path string, act, exp []interface{}) {
 	}
 
 	if len(act) < len(exp) {
-		a.tt.Errorf("length of expected array at '%s' was longer (length %d) than the actual array (length %d).", path, len(exp), len(act))
+		a.tt.Errorf("length of expected array at '%s' was longer (length %d) than the actual array (length %d)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)
 		if len(serializedAct+serializedExp) < 50 {
-			a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serializedAct, serializedExp)
+			a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON to contain: %+v", path, serializedAct, serializedExp)
 		} else {
-			a.tt.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v", path, serializedAct, serializedExp)
+			a.tt.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON to contain:\n%+v", path, serializedAct, serializedExp)
 		}
 		return
 	}

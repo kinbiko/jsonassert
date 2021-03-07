@@ -131,7 +131,42 @@ func TestContainsf(t *testing.T) {
 		act  string
 		exp  string
 		msgs []string
-	}{}
+	}{
+		{name: "actual not valid json", act: `foo`, exp: `"foo"`, msgs: []string{
+			`'actual' JSON is not valid JSON: unable to identify JSON type of "foo"`,
+		}},
+		{name: "expected not valid json", act: `"foo"`, exp: `foo`, msgs: []string{
+			`'expected' JSON is not valid JSON: unable to identify JSON type of "foo"`,
+		}},
+		{name: "number contains a number", act: `5`, exp: `5`, msgs: nil},
+		{name: "number does not contain a different number", act: `5`, exp: `-2`, msgs: []string{
+			"expected number at '$' to be '-2.0000000' but was '5.0000000'",
+		}},
+		{name: "string contains a string", act: `"foo"`, exp: `"foo"`, msgs: nil},
+		{name: "string does not contain a different string", act: `"foo"`, exp: `"bar"`, msgs: []string{
+			"expected string at '$' to be 'bar' but was 'foo'",
+		}},
+		{name: "boolean contains a boolean", act: `true`, exp: `true`, msgs: nil},
+		{name: "boolean does not contain a different boolean", act: `true`, exp: `false`, msgs: []string{
+			"expected boolean at '$' to be false but was true",
+		}},
+
+		{name: "empty array contains empty array", act: `[]`, exp: `[]`, msgs: nil},
+		{name: "single-element array contains empty array", act: `["fish"]`, exp: `[]`, msgs: nil},
+		{name: "unordered empty array contains empty array", act: `["<<UNORDERED>>"]`, exp: `[]`, msgs: nil},
+		{name: "unordered single-element array contains empty array", act: `["<<UNORDERED>>", "fish"]`, exp: `[]`, msgs: nil},
+		{name: "empty array contains single-element array", act: `[]`, exp: `["fish"]`, msgs: []string{
+			"length of expected array at '$' was longer (length 1) than the actual array (length 0)",
+			`actual JSON at '$' was: [], but expected JSON to contain: ["fish"]`,
+		}},
+
+		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
+			"actual JSON (object) and expected JSON (null) were of different types at '$'",
+		}},
+		{name: "expected any value, but got null", act: `{"foo": null}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{
+			"expected the presence of any value at '$.foo', but was absent",
+		}},
+	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(st *testing.T) {
 			tp, ja := setup()
