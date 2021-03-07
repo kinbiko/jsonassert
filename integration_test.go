@@ -74,6 +74,14 @@ but expected JSON was:
 		{name: "different non-empty arrays", act: `["hello"]`, exp: `["world"]`, msgs: []string{
 			`expected string at '$[0]' to be 'world' but was 'hello'`,
 		}},
+		{name: "identical non-empty unsorted arrays", act: `["hello", "world"]`, exp: `["<<UNORDERED>>", "world", "hello"]`, msgs: []string{}},
+		{name: "different non-empty unsorted arrays", act: `["hello", "world"]`, exp: `["<<UNORDERED>>", "世界", "hello"]`, msgs: []string{
+			`elements at '$' are different, even when ignoring order within the array:
+expected some ordering of
+["世界","hello"]
+but got
+["hello","world"]`,
+		}},
 		{name: "different length non-empty arrays", act: `["hello", "world"]`, exp: `["world"]`, msgs: []string{
 			`length of arrays at '$' were different. Expected array to be of length 1, but contained 2 element(s)`,
 			`actual JSON at '$' was: ["hello","world"], but expected JSON was: ["world"]`,
@@ -115,6 +123,160 @@ but expected JSON was:
 			}
 		})
 	}
+}
+
+func TestContainsf(t *testing.T) {
+	tt := []struct {
+		name string
+		act  string
+		exp  string
+		msgs []string
+	}{
+		{name: "actual not valid json", act: `foo`, exp: `"foo"`, msgs: []string{
+			`'actual' JSON is not valid JSON: unable to identify JSON type of "foo"`,
+		}},
+		{name: "expected not valid json", act: `"foo"`, exp: `foo`, msgs: []string{
+			`'expected' JSON is not valid JSON: unable to identify JSON type of "foo"`,
+		}},
+		{name: "number contains a number", act: `5`, exp: `5`, msgs: nil},
+		{name: "number does not contain a different number", act: `5`, exp: `-2`, msgs: []string{
+			"expected number at '$' to be '-2.0000000' but was '5.0000000'",
+		}},
+		{name: "string contains a string", act: `"foo"`, exp: `"foo"`, msgs: nil},
+		{name: "string does not contain a different string", act: `"foo"`, exp: `"bar"`, msgs: []string{
+			"expected string at '$' to be 'bar' but was 'foo'",
+		}},
+		{name: "boolean contains a boolean", act: `true`, exp: `true`, msgs: nil},
+		{name: "boolean does not contain a different boolean", act: `true`, exp: `false`, msgs: []string{
+			"expected boolean at '$' to be false but was true",
+		}},
+		{name: "empty array contains empty array", act: `[]`, exp: `[]`, msgs: nil},
+		{name: "single-element array contains empty array", act: `["fish"]`, exp: `[]`, msgs: nil},
+		{name: "unordered empty array contains empty array", act: `[]`, exp: `["<<UNORDERED>>"]`, msgs: nil},
+		{name: "unordered single-element array contains empty array", act: `["fish"]`, exp: `["<<UNORDERED>>"]`, msgs: nil},
+		{name: "empty array contains single-element array", act: `[]`, exp: `["fish"]`, msgs: []string{
+			"length of expected array at '$' was longer (length 1) than the actual array (length 0)",
+			`actual JSON at '$' was: [], but expected JSON to contain: ["fish"]`,
+		}},
+		{name: "unordered multi-element array contains subset", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "beta", "alpha"]`, msgs: nil},
+		{name: "unordered multi-element array does not contain single element", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "delta", "alpha"]`, msgs: []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+		}},
+		{name: "unordered multi-element array contains none of multi-element array", act: `["alpha", "beta", "gamma"]`, exp: `["<<UNORDERED>>", "delta", "pi", "omega"]`, msgs: []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[2] in the expected payload was not found anywhere in the actual JSON array:
+"pi"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[3] in the expected payload was not found anywhere in the actual JSON array:
+"omega"
+not found in
+["alpha","beta","gamma"]`,
+		}},
+		{name: "multi-element array contains itself", act: `["alpha", "beta"]`, exp: `["alpha", "beta"]`, msgs: nil},
+		{name: "multi-element array does not contain itself permuted", act: `["alpha", "beta"]`, exp: `["beta" ,"alpha"]`, msgs: []string{
+			"expected string at '$[0]' to be 'beta' but was 'alpha'",
+			"expected string at '$[1]' to be 'alpha' but was 'beta'",
+		}},
+		// Allow users to test against a subset of the payload without erroring out.
+		// This is to avoid the frustraion and unintuitive solution of adding "<<UNORDERED>>" in order to "enable" subsetting,
+		// which is really implied with the `contains` part of the API name.
+		{name: "multi-element array does contain its subset", act: `["alpha", "beta"]`, exp: `["alpha"]`, msgs: []string{}},
+		{name: "multi-element array does not contain its superset", act: `["alpha", "beta"]`, exp: `["alpha", "beta", "gamma"]`, msgs: []string{
+			"length of expected array at '$' was longer (length 3) than the actual array (length 2)",
+			`actual JSON at '$' was: ["alpha","beta"], but expected JSON to contain: ["alpha","beta","gamma"]`,
+		}},
+		{name: "expected and actual have different types", act: `{"foo": "bar"}`, exp: `null`, msgs: []string{
+			"actual JSON (object) and expected JSON (null) were of different types at '$'",
+		}},
+		{name: "expected any value, but got null", act: `{"foo": null}`, exp: `{"foo": "<<PRESENCE>>"}`, msgs: []string{
+			"expected the presence of any value at '$.foo', but was absent",
+		}},
+		{name: "unordered multi-element array of different types contains subset", act: `["alpha", 5, false, ["foo"], {"bar": "baz"}]`, exp: `["<<UNORDERED>>", 5, "alpha", {"bar": "baz"}]`, msgs: nil},
+
+		{name: "object contains its subset", act: `{"foo": "bar", "alpha": "omega"}`, exp: `{"alpha": "omega"}`, msgs: nil},
+		/*
+			{
+				name: "big fat test",
+				act: `{
+						"arr": [
+							"alpha",
+							5,
+							false,
+							["foo"],
+							{
+								"bar": "baz",
+								"fork": {
+									"start": "stop"
+								},
+								"nested": ["really", "fast"]
+							}
+						],
+						"fish": "mooney"
+					}`,
+				exp: `{
+						"arr": [
+							"<<UNORDERED>>",
+							5,
+							{
+								"fork": {
+									"start": "stop"
+								},
+								"nested": ["fast"]
+							}
+						]
+					}`, msgs: nil},
+		*/
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(st *testing.T) {
+			tp, ja := setup()
+			ja.Containsf(tc.act, tc.exp)
+			if got := len(tp.messages); got != len(tc.msgs) {
+				st.Errorf("expected %d assertion message(s) but got %d", len(tc.msgs), got)
+				if len(tc.msgs) > 0 {
+					st.Errorf("Expected the following messages:")
+					for _, msg := range tc.msgs {
+						st.Errorf(" - %s", msg)
+					}
+				}
+
+				if len(tp.messages) > 0 {
+					st.Errorf("Got the following messages:")
+					for _, msg := range tp.messages {
+						st.Errorf(" - %s", msg)
+					}
+				}
+				return
+			}
+
+			if len(tc.msgs) == 1 {
+				if exp, got := tc.msgs[0], tp.messages[0]; got != exp {
+					st.Errorf("expected assertion message:\n'%s'\nbut got\n'%s'", exp, got)
+				}
+				return
+			}
+
+			for _, exp := range tc.msgs {
+				found := false
+				for _, got := range tp.messages {
+					if got == exp {
+						found = true
+					}
+				}
+				if !found {
+					st.Errorf("couldn't find expected assertion message:\n'%s'", exp)
+				}
+			}
+		})
+	}
+
 }
 
 func setup() (*testPrinter, *jsonassert.Asserter) {
