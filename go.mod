@@ -1,1 +1,1 @@
-module github.com/kinbiko/jsonassert
+module github.com/545080079/jsonassert
