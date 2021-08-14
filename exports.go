@@ -91,6 +91,12 @@ along with the "world" format argument. For example:
 
 	ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
 
+You may also use format arguments in the case when your expected JSON contains
+a percent character, which would otherwise be interpreted as a
+format-directive.
+
+	ja.Assertf(`{"averageTestScore": "99%"}`, `{"averageTestScore":"%s"}`, "99%")
+
 Additionally, you may wish to make assertions against the *presence* of a
 value, but not against its value. For example:
 

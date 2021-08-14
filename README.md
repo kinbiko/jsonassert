@@ -18,20 +18,24 @@ Create a new `*jsonassert.Asserter` in your test and use this to make assertions
 func TestWhatever(t *testing.T) {
     ja := jsonassert.New(t)
     // find some sort of payload
+    name := "River Tam"
+    age := 16
     ja.Assertf(payload, `
     {
         "name": "%s",
         "age": %d,
+        "averageTestScore": "%s",
         "skills": [
             { "name": "martial arts", "level": 99 },
             { "name": "intelligence", "level": 100 },
             { "name": "mental fortitude", "level": 4 }
         ]
-    }`, "River Tam", 16)
+    }`, name, age, "99%")
 }
 ```
 
 You may pass in `fmt.Sprintf` arguments after the expected JSON structure.
+This feature may be useful for the case when you already have variables in your test with the expected data or when your expected JSON contains a `%` character which could be misinterpreted as a format directive.
 
 `ja.Assertf()` supports assertions against **strings only**.
 

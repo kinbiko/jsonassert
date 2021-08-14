@@ -25,12 +25,12 @@ func ExampleNew() {
 
 func ExampleAsserter_Assertf_formatArguments() {
 	ja := jsonassert.New(t)
-	ja.Assertf(`{"hello":"世界"}`, `
-		{
-			"hello": "%s"
-		}`, "world")
+	ja.Assertf(
+		`{ "name": "Jayne Cobb", "age": 36, "averageTestScore": "88%" }`,
+		`{ "name": "Jayne Cobb", "age": 36, "averageTestScore": "%s" }`, "28%",
+	)
 	//output:
-	//expected string at '$.hello' to be 'world' but was '世界'
+	//expected string at '$.averageTestScore' to be '28%' but was '88%'
 }
 
 func ExampleAsserter_Assertf_presenceOnly() {
