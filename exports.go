@@ -110,3 +110,10 @@ func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface
 	a.tt.Helper()
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
+
+// TODO: remember to document what happens if you call Containsf with a null
+// property as currently it will treat it as the key being missing.
+func (a *Asserter) Containsf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
+	a.tt.Helper()
+	a.pathContainsf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
+}
