@@ -83,6 +83,19 @@ func TestWhatever(t *testing.T) {
 
 The above will fail your tests because the `time` key was not present in the actual JSON, and the `uuid` was `null`.
 
+### Ignore ordering in arrays
+
+If your JSON payload contains an array with elements whose ordering is not deterministic, then you can use the `"<<UNORDERED>>"` directive as the first element of the array in question:
+
+```go
+func TestUnorderedArray(t *testing.T) {
+    ja := jsonassert.New(t)
+    payload := `["bar", "foo", "baz"]`
+    ja.Assertf(payload, `["foo", "bar", "baz"]`)                  // Order matters, will fail your test.
+    ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`) // Order agnostic, will pass your test.
+}
+```
+
 ## Docs
 
 You can find the [GoDocs for this package here](https://pkg.go.dev/github.com/kinbiko/jsonassert).
