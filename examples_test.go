@@ -44,3 +44,14 @@ func ExampleAsserter_Assertf_presenceOnly() {
 	//unexpected object key(s) ["hi"] found at '$'
 	//expected object key(s) ["hello"] missing at '$'
 }
+
+func ExampleAsserter_Assertf_unorderedArray() {
+	ja := jsonassert.New(t)
+	ja.Assertf(
+		`["zero", "one", "two"]`,
+		`["<<UNORDERED>>", "one", "two", "three"]`,
+	)
+	//output:
+	//actual JSON at '$[0]' contained an unexpected element: "zero"
+	//expected JSON at '$[2]': "three" was missing from actual payload
+}
