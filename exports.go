@@ -29,7 +29,8 @@ will verify that the UUID field is present, but does not check its actual value.
 You may use "<<PRESENCE>>" against any type of value. The only exception is null, which
 will result in an assertion failure.
 
-If you don't know / care about the order of the elements in an array in your payload, you can ignore the ordering:
+If you don't know / care about the order of the elements in an array in your
+payload, you can ignore the ordering:
 
 	payload := `["bar", "foo", "baz"]`
 	ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`)

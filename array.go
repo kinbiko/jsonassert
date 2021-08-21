@@ -48,9 +48,7 @@ func (a *Asserter) checkArrayUnordered(path string, act, exp []interface{}) {
 	for i, expEl := range exp {
 		found := false
 		for _, actEl := range act {
-			if a.deepEqual(expEl, actEl) {
-				found = true
-			}
+			found = found || a.deepEqual(expEl, actEl)
 		}
 		if !found {
 			serializedEl := serialize(expEl)
@@ -65,7 +63,7 @@ func (a *Asserter) checkArrayUnordered(path string, act, exp []interface{}) {
 
 func (a *Asserter) deepEqual(act, exp interface{}) bool {
 	// There's a non-zero chance that JSON serialization will *not* be
-	// deteminisitic in the future like it is in v1.16.
+	// deterministic in the future like it is in v1.16.
 	// However, until this is the case, I can't seem to find a test case that
 	// makes this evaluation return a false positive.
 	// The benefit is a lot of simplicity and considerable performance benefits
