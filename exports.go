@@ -20,14 +20,22 @@ along with the "world" format argument. For example:
 
 	ja.Assertf(`{"hello": "world"}`, `{"hello":"%s"}`, "world")
 
-Additionally, you may wish to make assertions against the *presence* of a
-value, but not against its value. For example:
+You may wish to make assertions against the *presence* of a value, but not
+against its value. For example:
 
 	ja.Assertf(`{"uuid": "94ae1a31-63b2-4a55-a478-47764b60c56b"}`, `{"uuid":"<<PRESENCE>>"}`)
 
 will verify that the UUID field is present, but does not check its actual value.
 You may use "<<PRESENCE>>" against any type of value. The only exception is null, which
 will result in an assertion failure.
+
+If you don't know / care about the order of the elements in an array in your payload, you can ignore the ordering:
+
+	payload := `["bar", "foo", "baz"]`
+	ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`)
+
+The above will verify that "foo", "bar", and "baz" are exactly the elements in
+the payload, but will ignore the order in which they appear.
 */
 package jsonassert
 
@@ -97,14 +105,23 @@ format-directive.
 
 	ja.Assertf(`{"averageTestScore": "99%"}`, `{"averageTestScore":"%s"}`, "99%")
 
-Additionally, you may wish to make assertions against the *presence* of a
-value, but not against its value. For example:
+You may wish to make assertions against the *presence* of a value, but not
+against its value. For example:
 
 	ja.Assertf(`{"uuid": "94ae1a31-63b2-4a55-a478-47764b60c56b"}`, `{"uuid":"<<PRESENCE>>"}`)
 
 will verify that the UUID field is present, but does not check its actual value.
 You may use "<<PRESENCE>>" against any type of value. The only exception is null, which
 will result in an assertion failure.
+
+If you don't know / care about the order of the elements in an array in your
+payload, you can ignore the ordering:
+
+	payload := `["bar", "foo", "baz"]`
+	ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`)
+
+The above will verify that "foo", "bar", and "baz" are exactly the elements in
+the payload, but will ignore the order in which they appear.
 */
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
 	a.tt.Helper()
