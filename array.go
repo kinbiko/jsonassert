@@ -95,9 +95,6 @@ func extractArray(s string) ([]interface{}, error) {
 	if len(s) == 0 {
 		return nil, fmt.Errorf("cannot parse empty string as array")
 	}
-	if s[0] != '[' {
-		return nil, fmt.Errorf("cannot parse '%s' as array", s)
-	}
 	var arr []interface{}
 	err := json.Unmarshal([]byte(s), &arr)
 	return arr, err
