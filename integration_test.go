@@ -2,6 +2,7 @@ package jsonassert_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/kinbiko/jsonassert"
@@ -231,16 +232,192 @@ but expected JSON was:
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
+
+		t.Run("with UNORDERED directive", func(t *testing.T) {
+			for name, tc := range map[string]*testCase{
+				"no elements":            {`[]`, `["<<UNORDERED>>"]`, nil},
+				"only one equal element": {`["foo"]`, `["<<UNORDERED>>", "foo"]`, nil},
+				"two elements ordered": {
+					`["foo", "bar"]`,
+					`["<<UNORDERED>>", "foo", "bar"]`,
+					nil,
+				},
+				"two elements unordered": {
+					`["bar", "foo"]`,
+					`["<<UNORDERED>>", "foo", "bar"]`,
+					nil,
+				},
+				"different number of elements": {
+					`["foo"]`,
+					`["<<UNORDERED>>", "foo", "bar"]`,
+					[]string{
+						`length of arrays at '$' were different. Expected array to be of length 2, but contained 1 element(s)`,
+						`actual JSON at '$' was: ["foo"], but expected JSON was: ["foo","bar"], potentially in a different order`,
+					},
+				},
+				"two different elements": {
+					`["far", "boo"]`,
+					`["<<UNORDERED>>", "foo", "bar"]`,
+					[]string{
+						`actual JSON at '$[0]' contained an unexpected element: "far"`,
+						`actual JSON at '$[1]' contained an unexpected element: "boo"`,
+						`expected JSON at '$[0]': "foo" was missing from actual payload`,
+						`expected JSON at '$[1]': "bar" was missing from actual payload`,
+					},
+				},
+				"valid array of different primitive types": {
+					`["far", 1, null, true, [], {}]`,
+					`["<<UNORDERED>>", true, 1, null, [], "far", {} ]`,
+					nil,
+				},
+				"duplicates should still error out": {
+					`["foo", "boo", "foo"]`,
+					`["<<UNORDERED>>", "foo", "boo"]`,
+					[]string{
+						`length of arrays at '$' were different. Expected array to be of length 2, but contained 3 element(s)`,
+						`actual JSON at '$' was: ["foo","boo","foo"], but expected JSON was: ["foo","boo"], potentially in a different order`,
+					},
+				},
+				"nested unordered arrays": {
+					// really long object means that serializing it the same is
+					// highly unlikely should the determinisim of JSON
+					// serialization go away.
+					`[{"20": 20}, {"19": 19}, {"18": 18 }, {"17": 17 }, {"16": 16 }, {"15": 15 }, {"14": 14 }, {"13": 13 }, {"12": 12 }, {"11": 11 }, {"10": 10 }, {"9": 9 }, {"8": 8 }, {"7": 7 }, {"6": 6 }, {"5": 5 }, {"4": 4 }, {"3": 3 }, {"2": 2 }, {"1": 1}]`,
+					`["<<UNORDERED>>", {"1": 1}, {"2": 2}, {"3": 3}, {"4": 4}, {"5": 5}, {"6": 6}, {"7": 7}, {"8": 8}, {"9": 9}, {"10": 10}, {"11": 11}, {"12": 12}, {"13": 13}, {"14": 14}, {"15": 15}, {"16": 16}, {"17": 17}, {"18": 18}, {"19": 19}, {"20": 20}]`,
+					nil,
+				},
+			} {
+				t.Run(name, func(t *testing.T) { tc.check(t) })
+			}
+		})
 	})
 
 	t.Run("extra long strings should be formatted on a new line", func(t *testing.T) {
-		tc := &testCase{
-			`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet"`,
-			`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"`,
-			[]string{`expected string at '$' to be
+		for name, tc := range map[string]*testCase{
+			"simple test string": {
+				`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet"`,
+				`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"`,
+				[]string{`expected string at '$' to be
 'lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?'
 but was
-'lorem ipsum dolor sit amet lorem ipsum dolor sit amet'`}}
+'lorem ipsum dolor sit amet lorem ipsum dolor sit amet'`,
+				},
+			},
+			"nested unordered arrays": {
+				`["lorem ipsum dolor sit amet lorem ipsum dolor sit amet", "lorem ipsum dolor sit amet lorem ipsum dolor sit amet"]`,
+				`["<<UNORDERED>>", "lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"]`,
+				[]string{
+					`length of arrays at '$' were different. Expected array to be of length 1, but contained 2 element(s)`,
+					`actual JSON at '$' was:
+["lorem ipsum dolor sit amet lorem ipsum dolor sit amet","lorem ipsum dolor sit amet lorem ipsum dolor sit amet"]
+but expected JSON was:
+["lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"],
+potentially in a different order`,
+				},
+			},
+		} {
+			t.Run(name, func(t *testing.T) { tc.check(t) })
+		}
+	})
+
+	t.Run("big fat test", func(t *testing.T) {
+		var (
+			bigFatPayloadActual, _   = ioutil.ReadFile("testdata/big-fat-payload-actual.json")
+			bigFatPayloadExpected, _ = ioutil.ReadFile("testdata/big-fat-payload-expected.json")
+		)
+
+		tc := testCase{
+			act: fmt.Sprintf(`{
+				"null": null,
+				"emptyObject": {},
+				"emptyArray": [],
+				"emptyString": "",
+				"zero": 0,
+				"boolean": false,
+				"positiveInt": 125,
+				"negativeInt": -1245,
+				"positiveFloats": 12.45,
+				"negativeFloats": -12.345,
+				"strings": "hello 世界",
+				"flatArray": ["foo", "bar", "baz"],
+				"flatObject": {"boo": "far", "biz": "qwerboipqwerb"},
+				"nestedArray": ["boop", ["poob", {"bat": "boi", "asdf": 14, "oi": ["boy"]}], {"n": null}],
+				"nestedObject": %s
+			}`, string(bigFatPayloadActual)),
+			exp: fmt.Sprintf(`{
+				"nil": null,
+				"emptyObject": [],
+				"emptyArray": [null],
+				"emptyString": " ",
+				"zero": 0.00001,
+				"boolean": true,
+				"positiveInt": 124,
+				"negativeInt": -1246,
+				"positiveFloats": 11.45,
+				"negativeFloats": -13.345,
+				"strings": "hello world",
+				"flatArray": ["fo", "ar", "baz"],
+				"flatObject": {"bo": "far", "biz": "qwerboipqwer"},
+				"nestedArray": ["oop", ["pob", {"bat": "oi", "asdf": 13, "oi": ["by"]}], {"m": null}],
+				"nestedObject": %s
+			}`, string(bigFatPayloadExpected)),
+			msgs: []string{
+				`unexpected object key(s) ["null"] found at '$'`,
+				`expected object key(s) ["nil"] missing at '$'`,
+
+				`actual JSON (object) and expected JSON (array) were of different types at '$.emptyObject'`,
+
+				`length of arrays at '$.emptyArray' were different. Expected array to be of length 1, but contained 0 element(s)`,
+				`actual JSON at '$.emptyArray' was: [], but expected JSON was: [null]`,
+
+				`expected string at '$.emptyString' to be ' ' but was ''`,
+
+				`expected number at '$.zero' to be '0.0000100' but was '0.0000000'`,
+
+				`expected boolean at '$.boolean' to be true but was false`,
+
+				`expected number at '$.positiveInt' to be '124.0000000' but was '125.0000000'`,
+
+				`expected number at '$.negativeInt' to be '-1246.0000000' but was '-1245.0000000'`,
+
+				`expected number at '$.positiveFloats' to be '11.4500000' but was '12.4500000'`,
+
+				`expected number at '$.negativeFloats' to be '-13.3450000' but was '-12.3450000'`,
+
+				`expected string at '$.strings' to be 'hello world' but was 'hello 世界'`,
+
+				`expected string at '$.flatArray[0]' to be 'fo' but was 'foo'`,
+				`expected string at '$.flatArray[1]' to be 'ar' but was 'bar'`,
+
+				`unexpected object key(s) ["boo"] found at '$.flatObject'`,
+				`expected object key(s) ["bo"] missing at '$.flatObject'`,
+				`expected string at '$.flatObject.biz' to be 'qwerboipqwer' but was 'qwerboipqwerb'`,
+
+				`expected string at '$.nestedArray[0]' to be 'oop' but was 'boop'`,
+				`expected string at '$.nestedArray[1][0]' to be 'pob' but was 'poob'`,
+				`expected number at '$.nestedArray[1][1].asdf' to be '13.0000000' but was '14.0000000'`,
+				`expected string at '$.nestedArray[1][1].bat' to be 'oi' but was 'boi'`,
+				`expected string at '$.nestedArray[1][1].oi[0]' to be 'by' but was 'boy'`,
+				`unexpected object key(s) ["n"] found at '$.nestedArray[2]'`,
+				`expected object key(s) ["m"] missing at '$.nestedArray[2]'`,
+
+				`expected boolean at '$.nestedObject.is_full_report' to be false but was true`,
+				`expected string at '$.nestedObject.id' to be 's869n10s9000060596qs3007' but was 's869n10s9000060s96qs3007'`,
+				`actual JSON (object) and expected JSON (null) were of different types at '$.nestedObject.request.headers'`,
+				`expected string at '$.nestedObject.metaData.device.userAgent' to be
+'Mozilla/4.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
+but was
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'`,
+				`expected 7 keys at '$.nestedObject.source_map_failure' but got 8 keys`,
+				`unexpected object key(s) ["source_map_url"] found at '$.nestedObject.source_map_failure'`,
+				`expected boolean at '$.nestedObject.source_map_failure.has_uploaded_source_maps_for_version' to be true but was false`,
+				`actual JSON at '$.nestedObject.breadcrumbs[1]' contained an unexpected element:
+"Something that is most definitely missing from the expected one, right??"`,
+				`expected JSON at '$.nestedObject.breadcrumbs[1]':
+"Something that is most definitely missing from the actual one, right??"
+was missing from actual payload`,
+			},
+		}
 		tc.check(t)
 	})
 }
@@ -253,26 +430,28 @@ type testCase struct {
 func (tc *testCase) check(t *testing.T) {
 	tp := &testPrinter{}
 	jsonassert.New(tp).Assertf(tc.act, tc.exp)
+
 	if got := len(tp.messages); got != len(tc.msgs) {
 		t.Errorf("expected %d assertion message(s) but got %d", len(tc.msgs), got)
-		if len(tc.msgs) > 0 {
-			t.Errorf("Expected the following messages:")
-			for _, msg := range tc.msgs {
-				t.Errorf(" - %s", msg)
-			}
-		}
-
-		if len(tp.messages) > 0 {
-			t.Errorf("Got the following messages:")
-			for _, msg := range tp.messages {
-				t.Errorf(" - %s", msg)
-			}
-		}
-		return
 	}
-	for i := range tc.msgs {
-		if exp, got := tc.msgs[i], tp.messages[i]; got != exp {
-			t.Errorf("expected assertion message:\n'%s'\nbut got\n'%s'", exp, got)
+
+	for _, expMsg := range tc.msgs {
+		found := false
+		for _, printedMsg := range tp.messages {
+			found = found || expMsg == printedMsg
+		}
+		if !found {
+			t.Errorf("missing assertion message:\n%s", expMsg)
+		}
+	}
+
+	for _, printedMsg := range tp.messages {
+		found := false
+		for _, expMsg := range tc.msgs {
+			found = found || printedMsg == expMsg
+		}
+		if !found {
+			t.Errorf("unexpected assertion message:\n%s", printedMsg)
 		}
 	}
 }
