@@ -8,7 +8,8 @@
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/jsonassert)
 [![License](https://img.shields.io/github/license/kinbiko/jsonassert.svg?style=flat)](https://github.com/kinbiko/jsonassert/blob/master/LICENSE)
 
-`jsonassert` is a Go test assertion library for verifying that two representations of JSON are semantically equal.
+It's difficult to confirm that a JSON payload, e.g. a HTTP request or response body, does indeed look the way you want using the built-in Go testing package.
+`jsonassert` is an easy-to-use Go test assertion library for verifying that two representations of JSON are semantically equal.
 
 ## Usage
 
