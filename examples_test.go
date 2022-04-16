@@ -13,6 +13,7 @@ func (p *printer) Errorf(format string, args ...interface{}) {
 }
 
 // using the varible name 't' to mimic a *testing.T variable
+// nolint:gochecknoglobals // this is global to make the examples look like valid test code
 var t *printer
 
 func ExampleNew() {
@@ -30,8 +31,8 @@ func ExampleAsserter_Assertf_formatArguments() {
 		`{ "name": "Jayne Cobb", "age": 36, "averageTestScore": "88%" }`,
 		`{ "name": "Jayne Cobb", "age": 36, "averageTestScore": "%s" }`, expTestScore,
 	)
-	//output:
-	//expected string at '$.averageTestScore' to be '28%' but was '88%'
+	// output:
+	// expected string at '$.averageTestScore' to be '28%' but was '88%'
 }
 
 func ExampleAsserter_Assertf_presenceOnly() {
@@ -40,9 +41,9 @@ func ExampleAsserter_Assertf_presenceOnly() {
 		{
 			"hello": "<<PRESENCE>>"
 		}`)
-	//output:
-	//unexpected object key(s) ["hi"] found at '$'
-	//expected object key(s) ["hello"] missing at '$'
+	// output:
+	// unexpected object key(s) ["hi"] found at '$'
+	// expected object key(s) ["hello"] missing at '$'
 }
 
 func ExampleAsserter_Assertf_unorderedArray() {
@@ -51,7 +52,7 @@ func ExampleAsserter_Assertf_unorderedArray() {
 		`["zero", "one", "two"]`,
 		`["<<UNORDERED>>", "one", "two", "three"]`,
 	)
-	//output:
-	//actual JSON at '$[0]' contained an unexpected element: "zero"
-	//expected JSON at '$[2]': "three" was missing from actual payload
+	// output:
+	// actual JSON at '$[0]' contained an unexpected element: "zero"
+	// expected JSON at '$[2]': "three" was missing from actual payload
 }

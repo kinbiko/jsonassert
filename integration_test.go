@@ -2,15 +2,18 @@ package jsonassert_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/kinbiko/jsonassert"
 )
 
 func TestAssertf(t *testing.T) {
+	t.Parallel()
 	t.Run("primitives", func(t *testing.T) {
+		t.Parallel()
 		t.Run("equality", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"0 bytes":         {``, ``, nil},
 				"null":            {`null`, `null`, nil},
@@ -25,11 +28,13 @@ func TestAssertf(t *testing.T) {
 				"negative floats": {`-12.345`, `-12.345`, nil},
 				"strings":         {`"hello world"`, `"hello world"`, nil},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 
 		t.Run("difference", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"types":                    {`"true"`, `true`, []string{`actual JSON (string) and expected JSON (boolean) were of different types at '$'`}},
 				"0 bytes v null":           {``, `null`, []string{`'actual' JSON is not valid JSON: unable to identify JSON type of ""`}},
@@ -39,13 +44,16 @@ func TestAssertf(t *testing.T) {
 				"strings":                  {`"hello"`, `"world"`, []string{`expected string at '$' to be 'world' but was 'hello'`}},
 				"empty v non-empty string": {`""`, `"world"`, []string{`expected string at '$' to be 'world' but was ''`}},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 	})
 
 	t.Run("objects", func(t *testing.T) {
+		t.Parallel()
 		t.Run("flat", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"identical objects": {
 					`{"hello": "world"}`,
@@ -71,13 +79,16 @@ func TestAssertf(t *testing.T) {
 					[]string{
 						`unexpected object key(s) ["world"] found at '$'`,
 						`expected object key(s) ["hello"] missing at '$'`,
-					}},
+					},
+				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 
 		t.Run("nested", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"different keys in nested objects": {
 					`{"foo": {"world": "hello"}}`,
@@ -101,11 +112,13 @@ func TestAssertf(t *testing.T) {
 					},
 				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 
 		t.Run("with PRESENCE directives", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"presence against null": {
 					`{"foo": null}`,
@@ -138,13 +151,16 @@ func TestAssertf(t *testing.T) {
 					nil,
 				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 	})
 
 	t.Run("arrays", func(t *testing.T) {
+		t.Parallel()
 		t.Run("flat", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"empty array v empty array": {
 					`[]`,
@@ -189,11 +205,13 @@ but expected JSON was:
 					},
 				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 
 		t.Run("composite elements", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"single object with different values": {
 					`[{"hello": "world"}]`,
@@ -229,11 +247,13 @@ but expected JSON was:
 					},
 				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 
 		t.Run("with UNORDERED directive", func(t *testing.T) {
+			t.Parallel()
 			for name, tc := range map[string]*testCase{
 				"no elements":            {`[]`, `["<<UNORDERED>>"]`, nil},
 				"only one equal element": {`["foo"]`, `["<<UNORDERED>>", "foo"]`, nil},
@@ -280,24 +300,27 @@ but expected JSON was:
 				},
 				"nested unordered arrays": {
 					// really long object means that serializing it the same is
-					// highly unlikely should the determinisim of JSON
+					// highly unlikely should the determinism of JSON
 					// serialization go away.
 					`[{"20": 20}, {"19": 19}, {"18": 18 }, {"17": 17 }, {"16": 16 }, {"15": 15 }, {"14": 14 }, {"13": 13 }, {"12": 12 }, {"11": 11 }, {"10": 10 }, {"9": 9 }, {"8": 8 }, {"7": 7 }, {"6": 6 }, {"5": 5 }, {"4": 4 }, {"3": 3 }, {"2": 2 }, {"1": 1}]`,
 					`["<<UNORDERED>>", {"1": 1}, {"2": 2}, {"3": 3}, {"4": 4}, {"5": 5}, {"6": 6}, {"7": 7}, {"8": 8}, {"9": 9}, {"10": 10}, {"11": 11}, {"12": 12}, {"13": 13}, {"14": 14}, {"15": 15}, {"16": 16}, {"17": 17}, {"18": 18}, {"19": 19}, {"20": 20}]`,
 					nil,
 				},
 			} {
+				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
 	})
 
 	t.Run("extra long strings should be formatted on a new line", func(t *testing.T) {
+		t.Parallel()
 		for name, tc := range map[string]*testCase{
 			"simple test string": {
 				`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet"`,
 				`"lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?"`,
-				[]string{`expected string at '$' to be
+				[]string{
+					`expected string at '$' to be
 'lorem ipsum dolor sit amet lorem ipsum dolor sit amet why do I have to be the test string?'
 but was
 'lorem ipsum dolor sit amet lorem ipsum dolor sit amet'`,
@@ -316,14 +339,16 @@ potentially in a different order`,
 				},
 			},
 		} {
+			tc := tc
 			t.Run(name, func(t *testing.T) { tc.check(t) })
 		}
 	})
 
 	t.Run("big fat test", func(t *testing.T) {
+		t.Parallel()
 		var (
-			bigFatPayloadActual, _   = ioutil.ReadFile("testdata/big-fat-payload-actual.json")
-			bigFatPayloadExpected, _ = ioutil.ReadFile("testdata/big-fat-payload-expected.json")
+			bigFatPayloadActual, _   = os.ReadFile("testdata/big-fat-payload-actual.json")
+			bigFatPayloadExpected, _ = os.ReadFile("testdata/big-fat-payload-expected.json")
 		)
 
 		tc := testCase{
@@ -428,6 +453,7 @@ type testCase struct {
 }
 
 func (tc *testCase) check(t *testing.T) {
+	t.Helper()
 	tp := &testPrinter{}
 	jsonassert.New(tp).Assertf(tc.act, tc.exp)
 

@@ -2,7 +2,6 @@ package jsonassert
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 )
 
@@ -43,15 +42,11 @@ func contains(container map[string]interface{}, candidate string) bool {
 	return false
 }
 
-func extractObject(s string) (map[string]interface{}, error) {
+func extractObject(s string) (map[string]interface{}, bool) {
 	s = strings.TrimSpace(s)
-	if len(s) == 0 {
-		return nil, fmt.Errorf("cannot parse empty string as object")
-	}
-	if s[0] != '{' {
-		return nil, fmt.Errorf("cannot parse '%s' as object", s)
+	if s == "" {
+		return nil, false
 	}
 	var arr map[string]interface{}
-	err := json.Unmarshal([]byte(s), &arr)
-	return arr, err
+	return arr, json.Unmarshal([]byte(s), &arr) == nil
 }

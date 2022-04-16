@@ -7,6 +7,7 @@ import (
 
 // This is *probably* good enough. Can change this to be even smaller if necessary
 const minDiff = 0.000001
+const bitSize = 64
 
 func (a *Asserter) checkNumber(path string, act, exp float64) {
 	a.tt.Helper()
@@ -15,6 +16,7 @@ func (a *Asserter) checkNumber(path string, act, exp float64) {
 	}
 }
 
-func extractNumber(n string) (float64, error) {
-	return strconv.ParseFloat(n, 64)
+func extractNumber(n string) (float64, bool) {
+	got, err := strconv.ParseFloat(n, bitSize)
+	return got, err == nil
 }
