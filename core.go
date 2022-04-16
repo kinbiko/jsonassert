@@ -2,11 +2,14 @@ package jsonassert
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 )
 
+// The length at which to consider a message too long to fit on a single line
+const maxMsgCharCount = 50
+
+//nolint:gocyclo,cyclop // function is actually still readable
 func (a *Asserter) pathassertf(path, act, exp string) {
 	a.tt.Helper()
 	if act == exp {
@@ -35,7 +38,7 @@ func (a *Asserter) pathassertf(path, act, exp string) {
 		a.tt.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
 		return
 	}
-	switch actType {
+	switch actType { // nolint:exhaustive // already know it's valid JSON and not null
 	case jsonBoolean:
 		actBool, _ := extractBoolean(act)
 		expBool, _ := extractBoolean(exp)
@@ -60,12 +63,9 @@ func (a *Asserter) pathassertf(path, act, exp string) {
 }
 
 func serialize(a interface{}) string {
-	bytes, err := json.Marshal(a)
-	if err != nil {
-		// Really don't want to panic here, but I can't see a reasonable solution.
-		// If this line *does* get executed then we should really investigate what kind of input was given
-		panic(errors.New("unexpected failure to re-serialize nested JSON. Please raise an issue including this error message and both the expected and actual JSON strings you used to trigger this panic" + err.Error()))
-	}
+	// nolint:errchkjson // Can be confident this won't return an error: the
+	// input will be a nested part of valid JSON, thus valid JSON
+	bytes, _ := json.Marshal(a)
 	return string(bytes)
 }
 
@@ -83,22 +83,22 @@ const (
 
 func findType(j string) (jsonType, error) {
 	j = strings.TrimSpace(j)
-	if _, err := extractString(j); err == nil {
+	if _, ok := extractString(j); ok {
 		return jsonString, nil
 	}
-	if _, err := extractNumber(j); err == nil {
+	if _, ok := extractNumber(j); ok {
 		return jsonNumber, nil
 	}
 	if j == "null" {
 		return jsonNull, nil
 	}
-	if _, err := extractObject(j); err == nil {
+	if _, ok := extractObject(j); ok {
 		return jsonObject, nil
 	}
 	if _, err := extractBoolean(j); err == nil {
 		return jsonBoolean, nil
 	}
-	if _, err := extractArray(j); err == nil {
+	if _, ok := extractArray(j); ok {
 		return jsonArray, nil
 	}
 	return jsonTypeUnknown, fmt.Errorf(`unable to identify JSON type of "%s"`, j)
