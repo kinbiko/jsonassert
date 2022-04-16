@@ -102,4 +102,4 @@ You can find the [GoDocs for this package here](https://pkg.go.dev/github.com/ki
 
 ## Contributing
 
-Contributions are welcome. Please discuss feature requests in an issue before opening a PR.
+Contributions are welcome. Please read the [contribution guidelines](./.github/CONTRIBUTING.md) and discuss feature requests in an issue before opening a PR.
