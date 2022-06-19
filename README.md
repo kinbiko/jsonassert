@@ -17,21 +17,21 @@ Create a new `*jsonassert.Asserter` in your test and use this to make assertions
 
 ```go
 func TestWhatever(t *testing.T) {
-    ja := jsonassert.New(t)
-    // find some sort of payload
-    name := "River Tam"
-    age := 16
-    ja.Assertf(payload, `
-    {
-        "name": "%s",
-        "age": %d,
-        "averageTestScore": "%s",
-        "skills": [
-            { "name": "martial arts", "level": 99 },
-            { "name": "intelligence", "level": 100 },
-            { "name": "mental fortitude", "level": 4 }
-        ]
-    }`, name, age, "99%")
+	ja := jsonassert.New(t)
+	// find some sort of payload
+	name := "River Tam"
+	age := 16
+	ja.Assertf(payload, `
+	{
+		"name": "%s",
+		"age": %d,
+		"averageTestScore": "%s",
+		"skills": [
+			{ "name": "martial arts", "level": 99 },
+			{ "name": "intelligence", "level": 100 },
+			{ "name": "mental fortitude", "level": 4 }
+		]
+	}`, name, age, "99%")
 }
 ```
 
@@ -51,17 +51,16 @@ For example:
 
 ```go
 func TestWhatever(t *testing.T) {
-    ja := jsonassert.New(t)
-    ja.Assertf(`
-    {
-        "time": "2019-01-28T21:19:42",
-        "uuid": "94ae1a31-63b2-4a55-a478-47764b60c56b"
-    }`, `
-    {
-        "time": "<<PRESENCE>>",
-        "uuid": "<<PRESENCE>>"
-
-    }`)
+	ja := jsonassert.New(t)
+	ja.Assertf(`
+	{
+		"time": "2019-01-28T21:19:42",
+		"uuid": "94ae1a31-63b2-4a55-a478-47764b60c56b"
+	}`, `
+	{
+		"time": "<<PRESENCE>>",
+		"uuid": "<<PRESENCE>>"
+	}`)
 }
 ```
 
@@ -69,16 +68,16 @@ The above will pass your test, but:
 
 ```go
 func TestWhatever(t *testing.T) {
-    ja := jsonassert.New(t)
-    ja.Assertf(`
-    {
-        "date": "2019-01-28T21:19:42",
-        "uuid": null
-    }`, `
-    {
-        "time": "<<PRESENCE>>",
-        "uuid": "<<PRESENCE>>"
-    }`)
+	ja := jsonassert.New(t)
+	ja.Assertf(`
+	{
+		"date": "2019-01-28T21:19:42",
+		"uuid": null
+	}`, `
+	{
+		"time": "<<PRESENCE>>",
+		"uuid": "<<PRESENCE>>"
+	}`)
 }
 ```
 
@@ -90,10 +89,10 @@ If your JSON payload contains an array with elements whose ordering is not deter
 
 ```go
 func TestUnorderedArray(t *testing.T) {
-    ja := jsonassert.New(t)
-    payload := `["bar", "foo", "baz"]`
-    ja.Assertf(payload, `["foo", "bar", "baz"]`)                  // Order matters, will fail your test.
-    ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`) // Order agnostic, will pass your test.
+	ja := jsonassert.New(t)
+	payload := `["bar", "foo", "baz"]`
+	ja.Assertf(payload, `["foo", "bar", "baz"]`)                  // Order matters, will fail your test.
+	ja.Assertf(payload, `["<<UNORDERED>>", "foo", "bar", "baz"]`) // Order agnostic, will pass your test.
 }
 ```
 
