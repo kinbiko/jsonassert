@@ -306,6 +306,12 @@ but expected JSON was:
 					`["<<UNORDERED>>", {"1": 1}, {"2": 2}, {"3": 3}, {"4": 4}, {"5": 5}, {"6": 6}, {"7": 7}, {"8": 8}, {"9": 9}, {"10": 10}, {"11": 11}, {"12": 12}, {"13": 13}, {"14": 14}, {"15": 15}, {"16": 16}, {"17": 17}, {"18": 18}, {"19": 19}, {"20": 20}]`,
 					nil,
 				},
+				"unordered array with objects with PRESENCE directives": {
+					// Regression test for https://github.com/kinbiko/jsonassert/issues/39
+					`{ "data": [ { "foo": 1, "bar": 2 }, { "foo": 11, "bar": 22 } ] }`,
+					`{ "data": [ "<<UNORDERED>>", { "foo": 11, "bar": "<<PRESENCE>>" }, { "foo": 1, "bar": "<<PRESENCE>>" } ] }`,
+					nil,
+				},
 			} {
 				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
