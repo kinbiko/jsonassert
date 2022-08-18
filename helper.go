@@ -22,7 +22,7 @@ func (p *deepEqualityPrinter) Errorf(msg string, args ...interface{}) { p.count+
 func (p *deepEqualityPrinter) Helper()                                { /* Intentional NOOP */ }
 
 func (a *Asserter) deepEqual(act, exp interface{}) bool {
-	p := &deepEqualityPrinter{}
+	p := &deepEqualityPrinter{count: 0}
 	deepEqualityAsserter := &Asserter{tt: p}
 	deepEqualityAsserter.pathassertf("", serialize(act), serialize(exp))
 	return p.count == 0
