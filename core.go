@@ -38,7 +38,7 @@ func (a *Asserter) pathassertf(path, act, exp string) {
 		a.tt.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
 		return
 	}
-	switch actType { // nolint:exhaustive // already know it's valid JSON and not null
+	switch actType { //nolint:exhaustive // already know it's valid JSON and not null
 	case jsonBoolean:
 		actBool, _ := extractBoolean(act)
 		expBool, _ := extractBoolean(exp)
@@ -63,7 +63,7 @@ func (a *Asserter) pathassertf(path, act, exp string) {
 }
 
 func serialize(a interface{}) string {
-	// nolint:errchkjson // Can be confident this won't return an error: the
+	//nolint:errchkjson // Can be confident this won't return an error: the
 	// input will be a nested part of valid JSON, thus valid JSON
 	bytes, _ := json.Marshal(a)
 	return string(bytes)

@@ -64,11 +64,6 @@ linters-settings:
     min-len: 10
     # minimal occurrences count to trigger, 3 by default
     min-occurrences: 3
-  depguard:
-    list-type: blacklist
-    include-go-root: false
-    packages:
-      - github.com/satori/go.uuid
 
     # packages-with-error-messages:
       # specify an error message to output when a blacklisted package is used
@@ -153,6 +148,8 @@ linters:
     - wsl
     - godot
     - nlreturn
+
+    - depguard
 
       # These are apparently deprecated but still yell at you if you don't disable them
     - golint

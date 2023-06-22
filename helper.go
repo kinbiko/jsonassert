@@ -18,8 +18,8 @@ func (*noopHelperTT) Helper() {
 // e.g. to verify where one potential candidate is matching or not.
 type deepEqualityPrinter struct{ count int }
 
-func (p *deepEqualityPrinter) Errorf(msg string, args ...interface{}) { p.count++ }
-func (p *deepEqualityPrinter) Helper()                                { /* Intentional NOOP */ }
+func (p *deepEqualityPrinter) Errorf(_ string, _ ...interface{}) { p.count++ }
+func (p *deepEqualityPrinter) Helper()                           { /* Intentional NOOP */ }
 
 func (a *Asserter) deepEqual(act, exp interface{}) bool {
 	p := &deepEqualityPrinter{count: 0}
