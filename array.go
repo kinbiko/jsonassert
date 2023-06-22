@@ -82,9 +82,7 @@ func (a *Asserter) checkArrayOrdered(path string, act, exp []interface{}) {
 func (a *Asserter) checkContainsArray(path string, act, exp []interface{}) {
 	a.tt.Helper()
 
-	var unordered bool
 	if len(exp) > 0 && exp[0] == "<<UNORDERED>>" {
-		unordered = true
 		exp = exp[1:]
 	}
 
@@ -95,13 +93,7 @@ func (a *Asserter) checkContainsArray(path string, act, exp []interface{}) {
 		return
 	}
 
-	if unordered {
-		a.checkContainsUnorderedArray(path, act, exp)
-		return
-	}
-	for i := range exp {
-		a.pathContainsf(fmt.Sprintf("%s[%d]", path, i), serialize(act[i]), serialize(exp[i]))
-	}
+	a.checkContainsUnorderedArray(path, act, exp)
 }
 
 func (a *Asserter) checkContainsUnorderedArray(path string, act, exp []interface{}) {
@@ -113,9 +105,7 @@ func (a *Asserter) checkContainsUnorderedArray(path string, act, exp []interface
 			ap := arrayPrinter{}
 			serializedAct := serialize(act[j])
 			New(&ap).pathContainsf("", serializedAct, serializedExp)
-			if len(ap) == 0 {
-				found = true
-			}
+			found = found || len(ap) == 0
 		}
 		if !found {
 			mismatchedExpPaths[fmt.Sprintf("%s[%d]", path, i+1)] = serializedExp // + 1 because 0th element is "<<UNORDERED>>"
