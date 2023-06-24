@@ -29,7 +29,7 @@ func TestAssertf(t *testing.T) {
 				"strings":         {`"hello world"`, `"hello world"`, nil},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 
@@ -45,7 +45,7 @@ func TestAssertf(t *testing.T) {
 				"empty v non-empty string": {`""`, `"world"`, []string{`expected string at '$' to be 'world' but was ''`}},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 	})
@@ -83,7 +83,7 @@ func TestAssertf(t *testing.T) {
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 
@@ -113,7 +113,7 @@ func TestAssertf(t *testing.T) {
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 
@@ -152,7 +152,7 @@ func TestAssertf(t *testing.T) {
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 	})
@@ -196,17 +196,14 @@ but expected JSON was:
 					`["world"]`,
 					[]string{`expected string at '$[0]' to be 'world' but was 'hello'`},
 				},
-				"different length non-empty arrays": {
+				"identical non-empty unsorted arrays": {
 					`["hello", "world"]`,
-					`["world"]`,
-					[]string{
-						`length of arrays at '$' were different. Expected array to be of length 1, but contained 2 element(s)`,
-						`actual JSON at '$' was: ["hello","world"], but expected JSON was: ["world"]`,
-					},
+					`["<<UNORDERED>>", "world", "hello"]`,
+					[]string{},
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 
@@ -248,7 +245,7 @@ but expected JSON was:
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 
@@ -314,7 +311,7 @@ but expected JSON was:
 				},
 			} {
 				tc := tc
-				t.Run(name, func(t *testing.T) { tc.check(t) })
+				t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 			}
 		})
 	})
@@ -346,7 +343,7 @@ potentially in a different order`,
 			},
 		} {
 			tc := tc
-			t.Run(name, func(t *testing.T) { tc.check(t) })
+			t.Run(name, func(t *testing.T) { tc.checkAssertf(t) })
 		}
 	})
 
@@ -449,8 +446,82 @@ but was
 was missing from actual payload`,
 			},
 		}
-		tc.check(t)
+		tc.checkAssertf(t)
 	})
+}
+
+func TestContainsf(t *testing.T) {
+	t.Parallel()
+	tt := map[string]*testCase{
+		"actual not valid json": {
+			`foo`,
+			`"foo"`,
+			[]string{`'actual' JSON is not valid JSON: unable to identify JSON type of "foo"`},
+		},
+		"expected not valid json":                             {`"foo"`, `foo`, []string{`'expected' JSON is not valid JSON: unable to identify JSON type of "foo"`}},
+		"number contains a number":                            {`5`, `5`, nil},
+		"number does not contain a different number":          {`5`, `-2`, []string{"expected number at '$' to be '-2.0000000' but was '5.0000000'"}},
+		"string contains a string":                            {`"foo"`, `"foo"`, nil},
+		"string does not contain a different string":          {`"foo"`, `"bar"`, []string{"expected string at '$' to be 'bar' but was 'foo'"}},
+		"boolean contains a boolean":                          {`true`, `true`, nil},
+		"boolean does not contain a different boolean":        {`true`, `false`, []string{"expected boolean at '$' to be false but was true"}},
+		"empty array contains empty array":                    {`[]`, `[]`, nil},
+		"single-element array contains empty array":           {`["fish"]`, `[]`, nil},
+		"unordered empty array contains empty array":          {`[]`, `["<<UNORDERED>>"]`, nil},
+		"unordered single-element array contains empty array": {`["fish"]`, `["<<UNORDERED>>"]`, nil},
+		"empty array contains single-element array":           {`[]`, `["fish"]`, []string{"length of expected array at '$' was longer (length 1) than the actual array (length 0)", `actual JSON at '$' was: [], but expected JSON to contain: ["fish"]`}},
+		"unordered multi-element array contains subset":       {`["alpha", "beta", "gamma"]`, `["<<UNORDERED>>", "beta", "alpha"]`, nil},
+		"unordered multi-element array does not contain single element": {`["alpha", "beta", "gamma"]`, `["<<UNORDERED>>", "delta", "alpha"]`, []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+		}},
+		"unordered multi-element array contains none of multi-element array": {`["alpha", "beta", "gamma"]`, `["<<UNORDERED>>", "delta", "pi", "omega"]`, []string{
+			`element at $[1] in the expected payload was not found anywhere in the actual JSON array:
+"delta"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[2] in the expected payload was not found anywhere in the actual JSON array:
+"pi"
+not found in
+["alpha","beta","gamma"]`,
+			`element at $[3] in the expected payload was not found anywhere in the actual JSON array:
+"omega"
+not found in
+["alpha","beta","gamma"]`,
+		}},
+		"multi-element array contains itself": {`["alpha", "beta"]`, `["alpha", "beta"]`, nil},
+		// NOTE: There's an important design decision to be made here.
+		// Currently, in the case of "Containsf" there's an implicit "<<UNORDERED>>" (if it's explicitly written it will be ignored)
+		// This is so that nested arrays don't have to repeatedly say "<<UNORDERED">> assuming the user just wants to check for the existence of some element of an array.
+		// However, this makes jsonassert useless for cases where you want to partially assert that an ordered array exists.
+		// Ideally this package should be able to support both nicely.
+		"multi-element array does contain itself permuted": {`["alpha", "beta"]`, `["beta" ,"alpha"]`, []string{}},
+		// Allow users to test against a subset of the payload without erroring out.
+		// This is to avoid the frustraion and unintuitive solution of adding "<<UNORDERED>>" in order to "enable" subsetting,
+		// which is really implied with the `contains` part of the API name.
+		"multi-element array does contain its subset":                      {`["alpha", "beta"]`, `["beta"]`, []string{}},
+		"multi-element array does not contain its superset":                {`["alpha", "beta"]`, `["alpha", "beta", "gamma"]`, []string{"length of expected array at '$' was longer (length 3) than the actual array (length 2)", `actual JSON at '$' was: ["alpha","beta"], but expected JSON to contain: ["alpha","beta","gamma"]`}},
+		"expected and actual have different types":                         {`{"foo": "bar"}`, `null`, []string{"actual JSON (object) and expected JSON (null) were of different types at '$'"}},
+		"expected any value but got null":                                  {`{"foo": null}`, `{"foo": "<<PRESENCE>>"}`, []string{"expected the presence of any value at '$.foo', but was absent"}},
+		"unordered multi-element array of different types contains subset": {`["alpha", 5, false, ["foo"], {"bar": "baz"}]`, `["<<UNORDERED>>", 5, "alpha", {"bar": "baz"}]`, nil},
+		"object contains its subset":                                       {`{"foo": "bar", "alpha": "omega"}`, `{"alpha": "omega"}`, nil},
+		/*
+			"array inside object": {
+				`{ "arr": [                  { "fork": { "start": "stop" }, "nested": ["really",        "fast"] } ] }`,
+				`{ "arr": [ "<<UNORDERED>>", { "fork": { "start": "stop" }, "nested": ["<<UNORDERED>>", "fast"] } ] }`,
+				nil,
+			},
+		*/
+	}
+	for name, tc := range tt {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			tc.checkContainsf(t)
+		})
+	}
 }
 
 type testCase struct {
@@ -458,11 +529,22 @@ type testCase struct {
 	msgs     []string
 }
 
-func (tc *testCase) check(t *testing.T) {
+func (tc *testCase) checkContainsf(t *testing.T) {
+	t.Helper()
+	tp := &testPrinter{messages: nil}
+	jsonassert.New(tp).Containsf(tc.act, tc.exp)
+	tc.check(t, tp)
+}
+
+func (tc *testCase) checkAssertf(t *testing.T) {
 	t.Helper()
 	tp := &testPrinter{messages: nil}
 	jsonassert.New(tp).Assertf(tc.act, tc.exp)
+	tc.check(t, tp)
+}
 
+func (tc *testCase) check(t *testing.T, tp *testPrinter) {
+	t.Helper()
 	if got := len(tp.messages); got != len(tc.msgs) {
 		t.Errorf("expected %d assertion message(s) but got %d", len(tc.msgs), got)
 	}

@@ -23,6 +23,20 @@ func (a *Asserter) checkObject(path string, act, exp map[string]interface{}) {
 	}
 }
 
+func (a *Asserter) checkContainsObject(path string, act, exp map[string]interface{}) {
+	a.tt.Helper()
+
+	if missingExpected := difference(exp, act); len(missingExpected) != 0 {
+		a.tt.Errorf("expected object key(s) %+v missing at '%s'", serialize(missingExpected), path)
+	}
+	for key := range exp {
+		if contains(act, key) {
+			a.pathContainsf(path+"."+key, serialize(act[key]), serialize(exp[key]))
+		}
+	}
+}
+
+// difference returns a slice of the keys that were found in a but not in b.
 func difference(act, exp map[string]interface{}) []string {
 	unique := []string{}
 	for key := range act {
