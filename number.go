@@ -6,8 +6,10 @@ import (
 )
 
 // This is *probably* good enough. Can change this to be even smaller if necessary
-const minDiff = 0.000001
-const bitSize = 64
+const (
+	minDiff = 0.000001
+	bitSize = 64
+)
 
 func (a *Asserter) checkNumber(path string, act, exp float64) {
 	a.tt.Helper()

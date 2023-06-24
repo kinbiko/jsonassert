@@ -64,7 +64,6 @@ you only need one *jsonassert.Asseter per (sub)test.
 In most cases, this will look something like
 
 	ja := jsonassert.New(t)
-
 */
 func New(p Printer) *Asserter {
 	// Initially this package was written without the assumption that the

@@ -13,7 +13,8 @@ func (p *printer) Errorf(format string, args ...interface{}) {
 }
 
 // using the varible name 't' to mimic a *testing.T variable
-// nolint:gochecknoglobals // this is global to make the examples look like valid test code
+//
+//nolint:gochecknoglobals // this is global to make the examples look like valid test code
 var t *printer
 
 func ExampleNew() {

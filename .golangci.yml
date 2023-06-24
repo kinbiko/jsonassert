@@ -64,15 +64,10 @@ linters-settings:
     min-len: 10
     # minimal occurrences count to trigger, 3 by default
     min-occurrences: 3
-  depguard:
-    list-type: blacklist
-    include-go-root: false
-    packages:
-      - github.com/satori/go.uuid
 
     # packages-with-error-messages:
-      # specify an error message to output when a blacklisted package is used
-      # github.com/sirupsen/logrus: "logging is allowed only by logutils.Log"
+    # specify an error message to output when a blacklisted package is used
+    # github.com/sirupsen/logrus: "logging is allowed only by logutils.Log"
   misspell:
     # Correct spellings using locale preferences for US or UK.
     # Default is to use a neutral variety of English.
@@ -145,7 +140,7 @@ linters-settings:
     max-blank-identifiers: 2
 
   whitespace:
-    multi-if: false   # Enforces newlines (or comments) after every multi-line if statement
+    multi-if: false # Enforces newlines (or comments) after every multi-line if statement
     multi-func: false # Enforces newlines (or comments) after every multi-line function signature
 
 linters:
@@ -153,6 +148,8 @@ linters:
     - wsl
     - godot
     - nlreturn
+
+    - depguard
 
       # These are apparently deprecated but still yell at you if you don't disable them
     - golint
@@ -170,7 +167,6 @@ linters:
     - style
     - unused
   fast: false
-
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source

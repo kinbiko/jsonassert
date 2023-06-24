@@ -460,7 +460,7 @@ type testCase struct {
 
 func (tc *testCase) check(t *testing.T) {
 	t.Helper()
-	tp := &testPrinter{}
+	tp := &testPrinter{messages: nil}
 	jsonassert.New(tp).Assertf(tc.act, tc.exp)
 
 	if got := len(tp.messages); got != len(tc.msgs) {
