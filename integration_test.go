@@ -28,7 +28,6 @@ func TestAssertf(t *testing.T) {
 				"negative floats": {`-12.345`, `-12.345`, nil},
 				"strings":         {`"hello world"`, `"hello world"`, nil},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -44,7 +43,6 @@ func TestAssertf(t *testing.T) {
 				"strings":                  {`"hello"`, `"world"`, []string{`expected string at '$' to be 'world' but was 'hello'`}},
 				"empty v non-empty string": {`""`, `"world"`, []string{`expected string at '$' to be 'world' but was ''`}},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -82,7 +80,6 @@ func TestAssertf(t *testing.T) {
 					},
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -112,7 +109,6 @@ func TestAssertf(t *testing.T) {
 					},
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -151,7 +147,6 @@ func TestAssertf(t *testing.T) {
 					nil,
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -205,7 +200,6 @@ but expected JSON was:
 					},
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -247,7 +241,6 @@ but expected JSON was:
 					},
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -313,7 +306,6 @@ but expected JSON was:
 					nil,
 				},
 			} {
-				tc := tc
 				t.Run(name, func(t *testing.T) { tc.check(t) })
 			}
 		})
@@ -345,7 +337,6 @@ potentially in a different order`,
 				},
 			},
 		} {
-			tc := tc
 			t.Run(name, func(t *testing.T) { tc.check(t) })
 		}
 	})
@@ -461,7 +452,7 @@ type testCase struct {
 func (tc *testCase) check(t *testing.T) {
 	t.Helper()
 	tp := &testPrinter{messages: nil}
-	jsonassert.New(tp).Assertf(tc.act, tc.exp)
+	jsonassert.New(tp).Assert(tc.act, tc.exp)
 
 	if got := len(tp.messages); got != len(tc.msgs) {
 		t.Errorf("expected %d assertion message(s) but got %d", len(tc.msgs), got)

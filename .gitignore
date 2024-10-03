@@ -12,3 +12,5 @@
 *.out
 
 tags
+
+bin/
