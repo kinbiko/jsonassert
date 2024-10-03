@@ -26,7 +26,7 @@ linters-settings:
 
   govet:
     # report about shadowed variables
-    check-shadowing: true
+    shadow: true
 
     # enable or disable analyzers by name
     # enable:
@@ -151,12 +151,6 @@ linters:
 
     - depguard
 
-      # These are apparently deprecated but still yell at you if you don't disable them
-    - golint
-    - scopelint
-    - maligned
-    - interfacer
-
     - gci # This conflicts with goimports
     - varnamelen # This has too many false positives around indexes etc to be useful
   presets:
@@ -191,7 +185,7 @@ issues:
         - maintidx
     - path: \.go
       linters:
-        - goerr113
+        - err113
 
   # Independently from option `exclude` we use default exclude patterns,
   # it can be disabled by this option. To list all
