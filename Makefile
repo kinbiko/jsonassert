@@ -1,4 +1,4 @@
-LINTER_VERSION := v1.61.0
+LINTER_VERSION := v2.4.0
 
 .PHONY: check
 check: lint test
