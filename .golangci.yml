@@ -1,5 +1,4 @@
 version: "2"
-
 linters:
   default: all
   disable:
@@ -72,17 +71,15 @@ linters:
           - paralleltest
           - staticcheck
           - testpackage
+          - varnamelen
       - path: \.go
         linters:
           - err113
-
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-
 formatters:
   enable:
-    - gofmt
     - gofumpt
     - goimports
   settings:
