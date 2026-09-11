@@ -1,201 +1,76 @@
 version: "2"
+
+run:
+  timeout: 1m
+
 linters:
-  enable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - canonicalheader
-    - containedctx
-    - contextcheck
-    - copyloopvar
-    - cyclop
-    - decorder
-    - dogsled
-    - dupl
-    - durationcheck
-    - err113
-    - errchkjson
-    - errname
-    - errorlint
-    - exhaustive
-    - exhaustruct_v5
-    - exptostd
-    - fatcontext
-    - forbidigo
-    - forcetypeassert
-    - funlen
-    - ginkgolinter
-    - gocheckcompilerdirectives
-    - gochecknoglobals
-    - gochecknoinits
-    - gochecksumtype
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godox
-    - goheader
-    - gomoddirectives
-    - gomodguard_v2
-    - goprintffuncname
-    - gosec
-    - gosmopolitan
-    - grouper
-    - iface
-    - importas
-    - inamedparam
-    - interfacebloat
-    - intrange
-    - ireturn
-    - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - mirror
-    - misspell
-    - mnd
-    - musttag
-    - nakedret
-    - nestif
-    - nilerr
-    - nilnesserr
-    - nilnil
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosprintfhostport
-    - paralleltest
-    - perfsprint
-    - prealloc
-    - predeclared
-    - promlinter
-    - protogetter
-    - reassign
-    - recvcheck
-    - revive
-    - rowserrcheck
-    - sloglint
-    - spancheck
-    - sqlclosecheck
-    - staticcheck
-    - tagalign
-    - tagliatelle
-    - testifylint
-    - testpackage
-    - tparallel
-    - unconvert
-    - unparam
-    - usestdlibvars
-    - wastedassign
-    - whitespace
-    - wrapcheck
-    - zerologlint
+  default: all
   disable:
     - depguard
     - godot
     - nlreturn
     - varnamelen
     - wsl
+    - gci
   settings:
-    dogsled:
-      max-blank-identifiers: 2
-    dupl:
-      threshold: 100
     errcheck:
       check-type-assertions: true
       check-blank: false
     funlen:
       lines: 50
       statements: 40
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    revive:
+      confidence: 0.8
+    gocyclo:
+      min-complexity: 10
     gocognit:
       min-complexity: 11
+    dupl:
+      threshold: 100
     goconst:
       min-len: 10
       min-occurrences: 3
+    misspell:
+      locale: US
+    lll:
+      line-length: 165
+      tab-width: 4
+    nakedret:
+      max-func-lines: 0
+    dogsled:
+      max-blank-identifiers: 2
     gocritic:
       enabled-tags:
         - diagnostic
         - style
         - performance
-      settings:
-        captLocal:
-          paramsOnly: true
-        rangeValCopy:
-          sizeThreshold: 64
-    gocyclo:
-      min-complexity: 10
-    godox:
-      keywords:
-        - TODO
-        - FIXME
-    govet:
-      disable:
-        - fieldalignment
-      enable-all: true
-    lll:
-      line-length: 165
-      tab-width: 4
-    misspell:
-      locale: US
-    nakedret:
-      max-func-lines: 0
-    prealloc:
-      simple: true
-      range-loops: true
-      for-loops: false
-    unparam:
-      check-exported: true
-    whitespace:
-      multi-if: false
-      multi-func: false
-  exclusions:
-    generated: lax
-    rules:
-      - linters:
-          - cyclop
-          - dupl
-          - errcheck
-          - errchkjson
-          - exhaustivestruct
-          - forbidigo
-          - funlen
-          - gocognit
-          - goconst
-          - gocyclo
-          - gosmopolitan
-          - lll
-          - maintidx
-          - mnd
-          - paralleltest
-          - staticcheck
-          - testpackage
-          - varnamelen
-        path: _test\.go
-      - linters:
-          - err113
-        path: \.go
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
-formatters:
-  enable:
-    - gofmt
-    - gofumpt
-    - goimports
-  settings:
-    gofmt:
-      simplify: true
     goimports:
       local-prefixes:
         - github.com/kinbiko/bugsnag
   exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+    rules:
+      - path: _test\.go
+        linters:
+          - cyclop
+          - dupl
+          - errcheck
+          - errchkjson
+          - forbidigo
+          - funlen
+          - gocognit
+          - gocyclo
+          - mnd
+          - lll
+          - testpackage
+          - maintidx
+      - path: \.go
+        linters:
+          - err113
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
