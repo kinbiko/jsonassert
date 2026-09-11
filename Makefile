@@ -1,5 +1,3 @@
-LINTER_VERSION := v2.13.2
-
 .PHONY: check
 check: lint test
 
@@ -9,7 +7,7 @@ get-deps:
 
 .PHONY: lint
 lint:
-	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(LINTER_VERSION) run ./...
+	go tool -modfile=tools.mod golangci-lint run
 
 .PHONY: test
 test:

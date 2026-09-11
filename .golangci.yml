@@ -1,56 +1,57 @@
 version: "2"
 
-run:
-  timeout: 1m
-
 linters:
   default: all
   disable:
     - depguard
+    - exhaustruct # replaced by exhaustruct_v5
     - godot
+    - gomodguard # replaced by gomodguard_v2
+    - modernize
     - nlreturn
+    - noinlineerr
+    - testableexamples
     - varnamelen
     - wsl
-    - gci
+    - wsl_v5
   settings:
+    dupl:
+      threshold: 100
     errcheck:
       check-type-assertions: true
-      check-blank: false
     funlen:
       lines: 50
       statements: 40
-    govet:
-      enable-all: true
-      disable:
-        - fieldalignment
-    revive:
-      confidence: 0.8
-    gocyclo:
-      min-complexity: 10
     gocognit:
       min-complexity: 11
-    dupl:
-      threshold: 100
     goconst:
       min-len: 10
       min-occurrences: 3
-    misspell:
-      locale: US
-    lll:
-      line-length: 165
-      tab-width: 4
-    nakedret:
-      max-func-lines: 0
-    dogsled:
-      max-blank-identifiers: 2
     gocritic:
       enabled-tags:
         - diagnostic
         - style
         - performance
-    goimports:
-      local-prefixes:
-        - github.com/kinbiko/bugsnag
+      settings:
+        captLocal:
+          paramsOnly: true
+        rangeValCopy:
+          sizeThreshold: 64
+    gocyclo:
+      min-complexity: 10
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    lll:
+      line-length: 165
+      tab-width: 4
+    misspell:
+      locale: US
+    nakedret:
+      max-func-lines: 0
+    unparam:
+      check-exported: true
   exclusions:
     rules:
       - path: _test\.go
@@ -62,11 +63,15 @@ linters:
           - forbidigo
           - funlen
           - gocognit
+          - goconst
           - gocyclo
-          - mnd
+          - gosmopolitan
           - lll
-          - testpackage
           - maintidx
+          - mnd
+          - paralleltest
+          - staticcheck
+          - testpackage
       - path: \.go
         linters:
           - err113
@@ -74,3 +79,13 @@ linters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/kinbiko/bugsnag
