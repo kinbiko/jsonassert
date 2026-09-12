@@ -124,13 +124,13 @@ The above will verify that "foo", "bar", and "baz" are exactly the elements in
 the payload, but will ignore the order in which they appear.
 */
 func (a *Asserter) Assertf(actualJSON, expectedJSON string, fmtArgs ...interface{}) {
-	a.tt.Helper()
+	a.Helper()
 	a.pathassertf("$", actualJSON, fmt.Sprintf(expectedJSON, fmtArgs...))
 }
 
 // Assert works like Assertf, but does not accept fmt.Sprintf directives.
 // See Assert for details.
 func (a *Asserter) Assert(actualJSON, expectedJSON string) {
-	a.tt.Helper()
+	a.Helper()
 	a.pathassertf("$", actualJSON, expectedJSON)
 }

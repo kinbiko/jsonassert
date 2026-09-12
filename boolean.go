@@ -13,8 +13,8 @@ func extractBoolean(b string) (bool, error) {
 }
 
 func (a *Asserter) checkBoolean(path string, act, exp bool) {
-	a.tt.Helper()
+	a.Helper()
 	if act != exp {
-		a.tt.Errorf("expected boolean at '%s' to be %v but was %v", path, exp, act)
+		a.Errorf("expected boolean at '%s' to be %v but was %v", path, exp, act)
 	}
 }

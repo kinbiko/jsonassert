@@ -11,31 +11,31 @@ const maxMsgCharCount = 50
 
 //nolint:gocyclo,cyclop // function is actually still readable
 func (a *Asserter) pathassertf(path, act, exp string) {
-	a.tt.Helper()
+	a.Helper()
 	if act == exp {
 		return
 	}
 	actType, err := findType(act)
 	if err != nil {
-		a.tt.Errorf("'actual' JSON is not valid JSON: " + err.Error())
+		a.Errorf("'actual' JSON is not valid JSON: " + err.Error())
 		return
 	}
 	expType, err := findType(exp)
 	if err != nil {
-		a.tt.Errorf("'expected' JSON is not valid JSON: " + err.Error())
+		a.Errorf("'expected' JSON is not valid JSON: " + err.Error())
 		return
 	}
 
 	// If we're only caring about the presence of the key, then don't bother checking any further
 	if expPresence, _ := extractString(exp); expPresence == "<<PRESENCE>>" {
 		if actType == jsonNull {
-			a.tt.Errorf(`expected the presence of any value at '%s', but was absent`, path)
+			a.Errorf(`expected the presence of any value at '%s', but was absent`, path)
 		}
 		return
 	}
 
 	if actType != expType {
-		a.tt.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
+		a.Errorf("actual JSON (%s) and expected JSON (%s) were of different types at '%s'", actType, expType, path)
 		return
 	}
 	switch actType { //nolint:exhaustive // already know it's valid JSON and not null

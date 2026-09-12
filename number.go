@@ -12,9 +12,9 @@ const (
 )
 
 func (a *Asserter) checkNumber(path string, act, exp float64) {
-	a.tt.Helper()
+	a.Helper()
 	if diff := math.Abs(act - exp); diff > minDiff {
-		a.tt.Errorf("expected number at '%s' to be '%.7f' but was '%.7f'", path, exp, act)
+		a.Errorf("expected number at '%s' to be '%.7f' but was '%.7f'", path, exp, act)
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 func (a *Asserter) checkArray(path string, act, exp []interface{}) {
-	a.tt.Helper()
+	a.Helper()
 	if len(exp) > 0 && exp[0] == "<<UNORDERED>>" {
 		a.checkArrayUnordered(path, act, exp[1:])
 	} else {
@@ -17,14 +17,14 @@ func (a *Asserter) checkArray(path string, act, exp []interface{}) {
 
 //nolint:gocognit,gocyclo,cyclop // function is actually still readable
 func (a *Asserter) checkArrayUnordered(path string, act, exp []interface{}) {
-	a.tt.Helper()
+	a.Helper()
 	if len(act) != len(exp) {
-		a.tt.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
+		a.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)
 		if len(serializedAct+serializedExp) < maxMsgCharCount {
-			a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v, potentially in a different order", path, serializedAct, serializedExp)
+			a.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v, potentially in a different order", path, serializedAct, serializedExp)
 		} else {
-			a.tt.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v,\npotentially in a different order", path, serializedAct, serializedExp)
+			a.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v,\npotentially in a different order", path, serializedAct, serializedExp)
 		}
 		return
 	}
@@ -39,9 +39,9 @@ func (a *Asserter) checkArrayUnordered(path string, act, exp []interface{}) {
 		if !found {
 			serializedEl := serialize(actEl)
 			if len(serializedEl) < maxMsgCharCount {
-				a.tt.Errorf("actual JSON at '%s[%d]' contained an unexpected element: %s", path, i, serializedEl)
+				a.Errorf("actual JSON at '%s[%d]' contained an unexpected element: %s", path, i, serializedEl)
 			} else {
-				a.tt.Errorf("actual JSON at '%s[%d]' contained an unexpected element:\n%s", path, i, serializedEl)
+				a.Errorf("actual JSON at '%s[%d]' contained an unexpected element:\n%s", path, i, serializedEl)
 			}
 		}
 	}
@@ -54,23 +54,23 @@ func (a *Asserter) checkArrayUnordered(path string, act, exp []interface{}) {
 		if !found {
 			serializedEl := serialize(expEl)
 			if len(serializedEl) < maxMsgCharCount {
-				a.tt.Errorf("expected JSON at '%s[%d]': %s was missing from actual payload", path, i, serializedEl)
+				a.Errorf("expected JSON at '%s[%d]': %s was missing from actual payload", path, i, serializedEl)
 			} else {
-				a.tt.Errorf("expected JSON at '%s[%d]':\n%s\nwas missing from actual payload", path, i, serializedEl)
+				a.Errorf("expected JSON at '%s[%d]':\n%s\nwas missing from actual payload", path, i, serializedEl)
 			}
 		}
 	}
 }
 
 func (a *Asserter) checkArrayOrdered(path string, act, exp []interface{}) {
-	a.tt.Helper()
+	a.Helper()
 	if len(act) != len(exp) {
-		a.tt.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
+		a.Errorf("length of arrays at '%s' were different. Expected array to be of length %d, but contained %d element(s)", path, len(exp), len(act))
 		serializedAct, serializedExp := serialize(act), serialize(exp)
 		if len(serializedAct+serializedExp) < maxMsgCharCount {
-			a.tt.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serializedAct, serializedExp)
+			a.Errorf("actual JSON at '%s' was: %+v, but expected JSON was: %+v", path, serializedAct, serializedExp)
 		} else {
-			a.tt.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v", path, serializedAct, serializedExp)
+			a.Errorf("actual JSON at '%s' was:\n%+v\nbut expected JSON was:\n%+v", path, serializedAct, serializedExp)
 		}
 		return
 	}

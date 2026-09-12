@@ -1,5 +1,3 @@
-LINTER_VERSION := v1.61.0
-
 .PHONY: check
 check: lint test
 
@@ -8,8 +6,8 @@ get-deps:
 	go get -v -t -d ./...
 
 .PHONY: lint
-lint: ./bin/linter
-	./bin/linter run ./...
+lint:
+	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2 run ./...
 
 .PHONY: test
 test:
@@ -18,7 +16,3 @@ test:
 .PHONY: coverage
 coverage:
 	go test -race -v -coverprofile=profile.cov -covermode=atomic ./...
-
-bin/linter: Makefile
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin $(LINTER_VERSION)
-	mv ./bin/golangci-lint ./bin/linter
