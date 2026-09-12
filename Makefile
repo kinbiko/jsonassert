@@ -20,5 +20,5 @@ coverage:
 	go test -race -v -coverprofile=profile.cov -covermode=atomic ./...
 
 bin/linter: Makefile
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin $(LINTER_VERSION)
+	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b ./bin $(LINTER_VERSION)
 	mv ./bin/golangci-lint ./bin/linter
