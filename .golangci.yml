@@ -1,102 +1,29 @@
 version: "2"
 linters:
+  # `standard` enables errcheck, govet, ineffassign, staticcheck, unused: https://golangci-lint.run/docs/linters/#all-linters
+  default: standard
+  # Linters explicitly enabled on top of `standard`: only those with deliberately configured thresholds below.
   enable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - canonicalheader
-    - containedctx
-    - contextcheck
-    - copyloopvar
-    - cyclop
-    - decorder
     - dogsled
     - dupl
-    - durationcheck
-    - err113
-    - errchkjson
-    - errname
-    - errorlint
-    - exhaustive
-    - exhaustruct
-    - exptostd
-    - fatcontext
-    - forbidigo
-    - forcetypeassert
     - funlen
-    - ginkgolinter
-    - gocheckcompilerdirectives
-    - gochecknoglobals
-    - gochecknoinits
-    - gochecksumtype
     - gocognit
     - goconst
     - gocritic
     - gocyclo
     - godox
-    - goheader
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosmopolitan
-    - grouper
-    - iface
-    - importas
-    - inamedparam
-    - interfacebloat
-    - intrange
-    - ireturn
     - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - mirror
     - misspell
-    - mnd
-    - musttag
     - nakedret
-    - nestif
-    - nilerr
-    - nilnesserr
-    - nilnil
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosprintfhostport
-    - paralleltest
-    - perfsprint
     - prealloc
-    - predeclared
-    - promlinter
-    - protogetter
-    - reassign
-    - recvcheck
-    - revive
-    - rowserrcheck
-    - sloglint
-    - spancheck
-    - sqlclosecheck
-    - staticcheck
-    - tagalign
-    - tagliatelle
-    - testifylint
-    - testpackage
-    - tparallel
-    - unconvert
-    - unparam
-    - usestdlibvars
-    - wastedassign
     - whitespace
-    - wrapcheck
-    - zerologlint
+  # Not in `standard`; kept as a documented guard in case they're ever promoted, recording past rejections.
   disable:
-    - depguard
+    - wsl
     - godot
     - nlreturn
-    - varnamelen
-    - wsl
+    - depguard
+    - varnamelen  # This has too many false positives around indexes etc to be useful
   settings:
     dogsled:
       max-blank-identifiers: 2
@@ -113,6 +40,7 @@ linters:
     goconst:
       min-len: 10
       min-occurrences: 3
+      ignore-tests: true
     gocritic:
       enabled-tags:
         - diagnostic
@@ -144,6 +72,11 @@ linters:
       simple: true
       range-loops: true
       for-loops: false
+    staticcheck:
+      # QF1008 keeps suggesting dropping the `tt.` prefix; to preserve the original Asserter API we're choosing to ignore this warning.
+      checks:
+        - all
+        - -QF1008
     whitespace:
       multi-if: false
       multi-func: false
@@ -151,25 +84,18 @@ linters:
     generated: lax
     rules:
       - linters:
-          - cyclop
           - dupl
           - errcheck
           - errchkjson
-          - exhaustivestruct
           - forbidigo
           - funlen
           - gocognit
           - gocyclo
           - lll
-          - maintidx
           - mnd
           - staticcheck
           - testpackage
-          - varnamelen
         path: _test\.go
-      - linters:
-          - err113
-        path: \.go
     paths:
       - third_party$
       - builtin$
@@ -181,6 +107,7 @@ formatters:
   enable:
     - gofmt
     - gofumpt
+    # `gci` deliberately unused ("conflicts with goimports"); import formatters live in this section since v2.
     - goimports
   settings:
     gofmt:
