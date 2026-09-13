@@ -37,6 +37,7 @@ func TestAssertf(t *testing.T) {
 			for name, tc := range map[string]*testCase{
 				"types":                    {`"true"`, `true`, []string{`actual JSON (string) and expected JSON (boolean) were of different types at '$'`}},
 				"0 bytes v null":           {``, `null`, []string{`'actual' JSON is not valid JSON: unable to identify JSON type of ""`}},
+				"null v 0 bytes":           {`null`, ``, []string{`'expected' JSON is not valid JSON: unable to identify JSON type of ""`}},
 				"booleans":                 {`false`, `true`, []string{`expected boolean at '$' to be true but was false`}},
 				"floats":                   {`12.45`, `1.245`, []string{`expected number at '$' to be '1.2450000' but was '12.4500000'`}},
 				"ints":                     {`1245`, `-1245`, []string{`expected number at '$' to be '-1245.0000000' but was '1245.0000000'`}},
