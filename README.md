@@ -2,7 +2,6 @@
 
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 [![Build Status](https://github.com/kinbiko/jsonassert/workflows/Go/badge.svg)](https://github.com/kinbiko/jsonassert/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/jsonassert)](https://goreportcard.com/report/github.com/kinbiko/jsonassert)
 [![Coverage Status](https://coveralls.io/repos/github/kinbiko/jsonassert/badge.svg)](https://coveralls.io/github/kinbiko/jsonassert)
 [![Latest version](https://img.shields.io/github/tag/kinbiko/jsonassert.svg?label=latest%20version&style=flat)](https://github.com/kinbiko/jsonassert/releases)
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/jsonassert)
